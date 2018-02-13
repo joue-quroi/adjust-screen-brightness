@@ -1,0 +1,56 @@
+body {
+  font-family: "Helvetica Neue",Helvetica,sans-serif;
+  font-size: 13px;
+
+  width: 400px;
+background: linear-gradient(to top, #333333 0%,#333333 50%,#333333 50%,white 50%,white 100%);
+
+
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  font-weight: normal;
+}
+input {
+  outline: none;
+}
+input[type=range] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-right: 10px;
+}
+span {
+  min-width: 35px;
+}
+
+[hbox] {
+  display: flex;
+}
+[align=center] {
+  align-items: center;
+}
+[pack=center] {
+  justify-content: center;
+}
+
+.night {
+  color: #ccc;
+}
+.sun {
+  background: url('sun.svg') left 0px center no-repeat;
+  width: 48px;
+  background-size: 42px;
+}
+.moon {
+  background: url('moon.svg') left 3px center no-repeat;
+  width: 48px;
+  background-size: 38px;
+}
+.right {
+  text-align: right;
+}
