@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "Adjust Screen Brightness",
   "description": "Control your browser's global screen brightness",
 
@@ -22,7 +22,7 @@
     "<all_urls>"
   ],
 
-  "homepage_url": "http://add0n.com/index.html",
+  "homepage_url": "http://add0n.com/eye-protector.html?from=brightness",
 
   "background": {
     "persistent": false,

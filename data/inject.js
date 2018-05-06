@@ -21,3 +21,10 @@ chrome.storage.onChanged.addListener(ps => {
     style.textContent = css.replace('level', ps.level.newValue);
   }
 });
+
+window.addEventListener('beforeprint', () => {
+  document.documentElement.removeChild(style);
+});
+window.addEventListener('afterprint', () => {
+  document.documentElement.appendChild(style);
+});
