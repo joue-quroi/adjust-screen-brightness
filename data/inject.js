@@ -1,3 +1,4 @@
+/* globals prefs */
 'use strict';
 
 var css = `html:before {
@@ -14,17 +15,11 @@ var css = `html:before {
 
 var style = document.createElement('style');
 style.textContent = css.replace('level', prefs.level);
+style.setAttribute('media', 'screen');
 document.documentElement.appendChild(style);
 
 chrome.storage.onChanged.addListener(ps => {
   if (ps.level) {
     style.textContent = css.replace('level', ps.level.newValue);
   }
-});
-
-window.addEventListener('beforeprint', () => {
-  document.documentElement.removeChild(style);
-});
-window.addEventListener('afterprint', () => {
-  document.documentElement.appendChild(style);
 });
