@@ -1,45 +1,61 @@
 /* globals webext */
 'use strict';
 
-webext.webNavigation.on('committed', ({tabId}) => {
+var onCommitted = ({tabId}) => {
   webext.tabs.executeScript(tabId, {
     runAt: 'document_start',
     code: `
       var prefs = {
-        level: ${localStorage.getItem('level') || 0.1}
+        level: '${localStorage.getItem('level') || '0.10'}'
       };
     `
   }, () => webext.tabs.executeScript(tabId, {
     runAt: 'document_start',
     file: '/data/inject.js'
   }));
-}).if(({frameId, url}) => frameId === 0 && (url.startsWith('http') || url.startsWith('file')));
+};
+webext.webNavigation.on('committed', onCommitted)
+  .if(({frameId, url}) => frameId === 0 && (url.startsWith('http') || url.startsWith('file')));
 
-function update(reason) {
-  webext.storage.get({
+webext.runtime.on('start-up', () => chrome.tabs.query({
+  url: '*://*/*'
+}, tabs => tabs.forEach(tab => onCommitted({
+  tabId: tab.id
+}))));
+
+var range = async() => {
+  const prefs = await webext.storage.get({
     'day-time': '08:00',
     'night-time': '19:00',
     'day-range': 0.1,
     'night-range': 0.2
-  }).then(prefs => {
-    const day = prefs['day-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
-    let night = prefs['night-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
+  });
+  const day = prefs['day-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
+  let night = prefs['night-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
 
-    if (night <= day) {
-      night += 24 * 60;
-    }
-    const d = new Date();
-    const now = d.getMinutes() + d.getHours() * 60;
+  if (night <= day) {
+    night += 24 * 60;
+  }
+  const d = new Date();
+  const now = d.getMinutes() + d.getHours() * 60;
 
-    if (now > day && now < night) {
-      localStorage.setItem('level', prefs['day-range']);
-    }
-    else {
-      localStorage.setItem('level', prefs['night-range']);
-    }
-    webext.storage.set({
-      level: localStorage.getItem('level')
-    });
+  if (now > day && now < night) {
+    return {
+      pref: 'day-range',
+      level: prefs['day-range']
+    };
+  }
+  return {
+    pref: 'night-range',
+    level: prefs['night-range']
+  };
+};
+
+async function update() {
+  const {level} = await range();
+  localStorage.setItem('level', level.toFixed(2));
+  webext.storage.set({
+    level: localStorage.getItem('level')
   });
 }
 
@@ -60,6 +76,13 @@ function setAlartm(id, val) {
     periodInMinutes: 24 * 60
   });
 }
+
+chrome.commands.onCommand.addListener(async command => {
+  const {pref, level} = await range();
+  webext.storage.set({
+    [pref]: Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)))
+  });
+});
 
 webext.storage.on('changed', ps => {
   setAlartm('day-time', ps['day-time'].newValue);
@@ -89,11 +112,11 @@ webext.runtime.on('start-up', () => {
   webext.storage.get({
     'version': null,
     'faqs': true,
-    'last-update': 0,
+    'last-update': 0
   }).then(prefs => {
     if (prefs.version ? (prefs.faqs && prefs.version !== version) : true) {
       const now = Date.now();
-      const doUpdate = (now - prefs['last-update']) / 1000 / 60 / 60 / 24 > 30;
+      const doUpdate = (now - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
       webext.storage.set({
         version,
         'last-update': doUpdate ? Date.now() : prefs['last-update']

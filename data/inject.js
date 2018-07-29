@@ -1,7 +1,7 @@
 /* globals prefs */
 'use strict';
 
-var css = `html:before {
+var css = level => level !== '0.00' ? `html:before {
   content: " ";
   z-index: 100000000000000;
   pointer-events: none;
@@ -10,16 +10,19 @@ var css = `html:before {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, level);
-}`;
+  background-color: rgba(0, 0, 0, ${level});
+}` : '';
+
+[...document.querySelectorAll('#global-dark-mode')].forEach(e => e.remove());
 
 var style = document.createElement('style');
-style.textContent = css.replace('level', prefs.level);
+style.id = 'global-dark-mode';
+style.textContent = css(prefs.level);
 style.setAttribute('media', 'screen');
 document.documentElement.appendChild(style);
 
 chrome.storage.onChanged.addListener(ps => {
   if (ps.level) {
-    style.textContent = css.replace('level', ps.level.newValue);
+    style.textContent = css(ps.level.newValue);
   }
 });
