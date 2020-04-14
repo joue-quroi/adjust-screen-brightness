@@ -1,18 +1,27 @@
 body {
   width: 400px;
-  background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, white 50%, white 100%);
   color: #3c4043;
   font-size: 13px;
+  margin: 0;
 }
 body,
 input {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
 }
 input {
-  font-size: 12px;
+  font-size: 11px;
   outline: none;
 }
 
+#toolbar {
+  padding: 10px;
+  text-align: right;
+  background-color: #333;
+}
+#content {
+  background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, white 50%, white 100%);
+  padding: 10px;
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -52,4 +61,8 @@ span {
   background: url('moon.svg') left 3px center no-repeat;
   width: 48px;
   background-size: 38px;
+}
+
+.hidden {
+  display: none;
 }

@@ -1,24 +1,33 @@
 'use strict';
 
+window.icon = (tabId, active = true) => {
+  chrome.browserAction.setIcon({
+    tabId,
+    path: {
+      16: '/data/icons/' + (active ? '' : 'disabled/') + '16.png',
+      19: '/data/icons/' + (active ? '' : 'disabled/') + '19.png',
+      32: '/data/icons/' + (active ? '' : 'disabled/') + '32.png',
+      38: '/data/icons/' + (active ? '' : 'disabled/') + '38.png',
+      48: '/data/icons/' + (active ? '' : 'disabled/') + '48.png',
+      64: '/data/icons/' + (active ? '' : 'disabled/') + '64.png'
+    }
+  });
+  chrome.browserAction.setTitle({
+    tabId,
+    title: active ? chrome.runtime.getManifest().name : 'Disabled on this hostname'
+  });
+};
+window.reset = tab => {
+  chrome.tabs.executeScript(tab.id, {
+    code: `[...document.querySelectorAll('#global-dark-mode')].forEach(e => e.remove());`
+  });
+  window.icon(tab.id, false);
+};
 const onCommitted = ({tabId, frameId, url}) => {
   if (frameId === 0) {
     const list = JSON.parse(localStorage.getItem('exceptions') || '[]');
     if (list.some(h => url.startsWith('http://' + h + '/') || url.startsWith('https://' + h + '/'))) {
-      chrome.browserAction.setIcon({
-        tabId,
-        path: {
-          16: '/data/icons/disabled/16.png',
-          19: '/data/icons/disabled/19.png',
-          32: '/data/icons/disabled/32.png',
-          38: '/data/icons/disabled/38.png',
-          48: '/data/icons/disabled/48.png',
-          64: '/data/icons/disabled/64.png'
-        }
-      });
-      chrome.browserAction.setTitle({
-        tabId,
-        title: 'Disabled on this hostname'
-      });
+      window.icon(tabId, false);
       return;
     }
     chrome.tabs.executeScript(tabId, {
@@ -34,6 +43,7 @@ const onCommitted = ({tabId, frameId, url}) => {
     }));
   }
 };
+window.onCommitted = onCommitted;
 chrome.webNavigation.onCommitted.addListener(onCommitted, {
   url: [{
     schemes: ['http', 'https', 'file']
@@ -91,7 +101,7 @@ const range = async () => {
 };
 
 async function update(reason) {
-  console.log('update', reason);
+  // console.log('update', reason);
   const {level} = await range();
   localStorage.setItem('level', level.toFixed(2));
   chrome.storage.local.set({

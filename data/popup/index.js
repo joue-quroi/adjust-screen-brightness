@@ -36,3 +36,61 @@ chrome.storage.local.get({
     bubbles: true
   }));
 });
+
+let tab;
+chrome.tabs.query({
+  currentWindow: true,
+  active: true
+}, tabs => {
+  tab = tabs[0];
+  const {hostname, protocol} = new URL(tab.url);
+  if (protocol === 'http:' || protocol === 'https:') {
+    const list = JSON.parse(localStorage.getItem('exceptions') || '[]');
+    if (list.indexOf(hostname) === -1) {
+      document.getElementById('disable').disabled = false;
+    }
+    else {
+      document.getElementById('enable').disabled = false;
+    }
+  }
+});
+
+document.getElementById('disable').addEventListener('click', e => {
+  const list = JSON.parse(localStorage.getItem('exceptions') || '[]');
+  const {hostname} = new URL(tab.url);
+  list.push(hostname);
+  localStorage.setItem('exceptions', JSON.stringify(list));
+  e.target.disabled = true;
+  document.getElementById('enable').disabled = false;
+  chrome.runtime.getBackgroundPage(bg => {
+    chrome.tabs.query({}, tabs => {
+      tabs = tabs.filter(t => t.url && (t.url.startsWith('http://' + hostname) || t.url.startsWith('https://' + hostname)));
+      for (const tab of tabs) {
+        bg.reset(tab);
+      }
+    });
+  });
+});
+
+document.getElementById('enable').addEventListener('click', e => {
+  const list = JSON.parse(localStorage.getItem('exceptions') || '[]');
+  const {hostname} = new URL(tab.url);
+  const index = list.indexOf(hostname);
+  list.splice(index, 1);
+  localStorage.setItem('exceptions', JSON.stringify(list));
+  e.target.disabled = true;
+  document.getElementById('disable').disabled = false;
+  chrome.runtime.getBackgroundPage(bg => {
+    chrome.tabs.query({}, tabs => {
+      tabs = tabs.filter(t => t.url && (t.url.startsWith('http://' + hostname) || t.url.startsWith('https://' + hostname)));
+      for (const tab of tabs) {
+        bg.icon(tab.id, true);
+        bg.onCommitted({
+          frameId: 0,
+          tabId: tab.id,
+          url: tab.url
+        });
+      }
+    });
+  });
+});
