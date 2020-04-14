@@ -1,11 +1,16 @@
 body {
-  font-family: "Helvetica Neue",Helvetica,sans-serif;
-  font-size: 13px;
-
   width: 400px;
-background: linear-gradient(to top, #333333 0%,#333333 50%,#333333 50%,white 50%,white 100%);
-
-
+  background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, white 50%, white 100%);
+  color: #3c4043;
+  font-size: 13px;
+}
+body,
+input {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+}
+input {
+  font-size: 12px;
+  outline: none;
 }
 
 table {
@@ -16,16 +21,13 @@ th {
   text-align: left;
   font-weight: normal;
 }
-input {
-  outline: none;
-}
 input[type=range] {
   width: 100%;
   box-sizing: border-box;
-  margin-right: 10px;
 }
 span {
-  min-width: 35px;
+  min-width: 40px;
+  text-align: right;
 }
 
 [hbox] {
@@ -42,7 +44,7 @@ span {
   color: #ccc;
 }
 .sun {
-  background: url('sun.svg') left 0px center no-repeat;
+  background: url('sun.svg') left 0 center no-repeat;
   width: 48px;
   background-size: 42px;
 }
@@ -50,7 +52,4 @@ span {
   background: url('moon.svg') left 3px center no-repeat;
   width: 48px;
   background-size: 38px;
-}
-.right {
-  text-align: right;
 }

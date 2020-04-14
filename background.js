@@ -1,35 +1,74 @@
-/* globals webext */
 'use strict';
 
-var onCommitted = ({tabId}) => {
-  webext.tabs.executeScript(tabId, {
-    runAt: 'document_start',
-    code: `
-      var prefs = {
-        level: '${localStorage.getItem('level') || '0.10'}'
-      };
-    `
-  }, () => webext.tabs.executeScript(tabId, {
-    runAt: 'document_start',
-    file: '/data/inject.js'
-  }));
+const onCommitted = ({tabId, frameId, url}) => {
+  if (frameId === 0) {
+    const list = JSON.parse(localStorage.getItem('exceptions') || '[]');
+    if (list.some(h => url.startsWith('http://' + h + '/') || url.startsWith('https://' + h + '/'))) {
+      chrome.browserAction.setIcon({
+        tabId,
+        path: {
+          16: '/data/icons/disabled/16.png',
+          19: '/data/icons/disabled/19.png',
+          32: '/data/icons/disabled/32.png',
+          38: '/data/icons/disabled/38.png',
+          48: '/data/icons/disabled/48.png',
+          64: '/data/icons/disabled/64.png'
+        }
+      });
+      chrome.browserAction.setTitle({
+        tabId,
+        title: 'Disabled on this hostname'
+      });
+      return;
+    }
+    chrome.tabs.executeScript(tabId, {
+      runAt: 'document_start',
+      code: `
+        var prefs = {
+          level: '${localStorage.getItem('level') || '0.10'}'
+        };
+      `
+    }, () => chrome.tabs.executeScript(tabId, {
+      runAt: 'document_start',
+      file: '/data/inject.js'
+    }));
+  }
 };
-webext.webNavigation.on('committed', onCommitted)
-  .if(({frameId, url}) => frameId === 0 && (url.startsWith('http') || url.startsWith('file')));
+chrome.webNavigation.onCommitted.addListener(onCommitted, {
+  url: [{
+    schemes: ['http', 'https', 'file']
+  }]
+});
 
-webext.runtime.on('start-up', () => chrome.tabs.query({
-  url: '*://*/*'
-}, tabs => tabs.forEach(tab => onCommitted({
-  tabId: tab.id
-}))));
+{
+  const startup = () => {
+    chrome.tabs.query({
+      url: '*://*/*'
+    }, tabs => tabs.forEach(tab => onCommitted({
+      frameId: 0,
+      tabId: tab.id,
+      url: tab.url
+    })));
+    chrome.storage.local.get({
+      'day-time': '08:00',
+      'night-time': '19:00'
+    }, prefs => {
+      setAlartm('day-time', prefs['day-time']);
+      setAlartm('night-time', prefs['night-time']);
+      update('start.up');
+    });
+  };
+  chrome.runtime.onStartup.addListener(startup);
+  chrome.runtime.onInstalled.addListener(startup);
+}
 
-var range = async() => {
-  const prefs = await webext.storage.get({
+const range = async () => {
+  const prefs = await new Promise(resolve => chrome.storage.local.get({
     'day-time': '08:00',
     'night-time': '19:00',
     'day-range': 0.1,
     'night-range': 0.2
-  });
+  }, resolve));
   const day = prefs['day-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
   let night = prefs['night-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
 
@@ -51,16 +90,35 @@ var range = async() => {
   };
 };
 
-async function update() {
+async function update(reason) {
+  console.log('update', reason);
   const {level} = await range();
   localStorage.setItem('level', level.toFixed(2));
-  webext.storage.set({
+  chrome.storage.local.set({
     level: localStorage.getItem('level')
   });
 }
+chrome.alarms.onAlarm.addListener(({name}) => {
+  update('alarm.' + name);
+});
+chrome.idle.onStateChanged.addListener(state => {
+  if (state === 'active') {
+    update('idle.active');
+  }
+});
 
-webext.storage.on('changed', () => update('prefs.changed'))
-  .if(ps => ps['night-range'] || ps['day-range'] || ps['night-time'] || ps['day-time']);
+/* change */
+chrome.storage.onChanged.addListener(ps => {
+  if (ps['night-range'] || ps['day-range'] || ps['night-time'] || ps['day-time']) {
+    update('prefs.changed');
+  }
+  if (ps['day-time']) {
+    setAlartm('day-time', ps['day-time'].newValue);
+  }
+  if (ps['night-time']) {
+    setAlartm('night-time', ps['night-time'].newValue);
+  }
+});
 
 function setAlartm(id, val) {
   val = val.split(':');
@@ -71,7 +129,7 @@ function setAlartm(id, val) {
 
   const now = Date.now();
   const when = d.getTime();
-  webext.alarms.create(id, {
+  chrome.alarms.create(id, {
     when: when <= now ? when + 24 * 60 * 60 * 1000 : when,
     periodInMinutes: 24 * 60
   });
@@ -79,62 +137,34 @@ function setAlartm(id, val) {
 
 chrome.commands.onCommand.addListener(async command => {
   const {pref, level} = await range();
-  webext.storage.set({
+  chrome.storage.set({
     [pref]: Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)))
   });
 });
 
-webext.storage.on('changed', ps => {
-  setAlartm('day-time', ps['day-time'].newValue);
-}).if(ps => ps['day-time']);
-
-webext.storage.on('changed', ps => {
-  setAlartm('night-time', ps['night-time'].newValue);
-}).if(ps => ps['night-time']);
-
-webext.runtime.on('start-up', () => webext.storage.get({
-  'day-time': '08:00',
-  'night-time': '19:00'
-}).then(prefs => {
-  setAlartm('day-time', prefs['day-time']);
-  setAlartm('night-time', prefs['night-time']);
-  update('start.up');
-}));
-
-webext.alarms.on('alarm', ({name}) => update('alarm.' + name));
-webext.idle.on('changed', () => update('idle.active')).if(state => state === 'active');
-
-// FAQs and Feedback
-webext.runtime.on('start-up', () => {
-  const {name, version, homepage_url} = webext.runtime.getManifest(); // eslint-disable-line camelcase
-  const page = homepage_url; // eslint-disable-line camelcase
-  // FAQs
-  webext.storage.get({
-    'version': null,
-    'faqs': true,
-    'last-update': 0
-  }).then(prefs => {
-    if (prefs.version ? (prefs.faqs && prefs.version !== version) : true) {
-      const now = Date.now();
-      const doUpdate = (now - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
-      webext.storage.set({
-        version,
-        'last-update': doUpdate ? Date.now() : prefs['last-update']
-      }).then(() => {
-        // do not display the FAQs page if last-update occurred less than 30 days ago.
-        if (doUpdate) {
-          const p = Boolean(prefs.version);
-          webext.tabs.create({
-            url: page + '&version=' + version +
-              '&type=' + (p ? ('upgrade&p=' + prefs.version) : 'install'),
-            active: p === false
-          });
+/* FAQs & Feedback */
+{
+  const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
+  if (navigator.webdriver !== true) {
+    const page = getManifest().homepage_url;
+    const {name, version} = getManifest();
+    onInstalled.addListener(({reason, previousVersion}) => {
+      management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
+        'faqs': true,
+        'last-update': 0
+      }, prefs => {
+        if (reason === 'install' || (prefs.faqs && reason === 'update')) {
+          const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
+          if (doUpdate && previousVersion !== version) {
+            tabs.create({
+              url: page + '&version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
+              active: reason === 'install'
+            });
+            storage.local.set({'last-update': Date.now()});
+          }
         }
-      });
-    }
-  });
-  // Feedback
-  webext.runtime.setUninstallURL(
-    page + '&rd=feedback&name=' + name + '&version=' + version
-  );
-});
+      }));
+    });
+    setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
+  }
+}

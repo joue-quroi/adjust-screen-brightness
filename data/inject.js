@@ -1,7 +1,7 @@
 /* globals prefs */
 'use strict';
 
-var css = level => level !== '0.00' ? `html:before {
+const css = level => level !== '0.00' ? `html:before {
   content: " ";
   z-index: 100000000000000;
   pointer-events: none;
@@ -15,7 +15,7 @@ var css = level => level !== '0.00' ? `html:before {
 
 [...document.querySelectorAll('#global-dark-mode')].forEach(e => e.remove());
 
-var style = document.createElement('style');
+const style = document.createElement('style');
 style.id = 'global-dark-mode';
 style.textContent = css(prefs.level);
 style.setAttribute('media', 'screen');
