@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "name": "Adjust Screen Brightness",
-  "description": "Control your browser's global screen brightness",
+  "description": "__MSG_description__",
+  "default_locale": "en",
   "icons": {
     "16": "data/icons/16.png",
     "32": "data/icons/32.png",
