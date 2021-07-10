@@ -1,26 +1,22 @@
 'use strict';
 
-window.icon = (tabId, active = true) => {
+window.icon = (tabId, active = true, message) => {
   chrome.browserAction.setIcon({
     tabId,
     path: {
       16: '/data/icons/' + (active ? '' : 'disabled/') + '16.png',
-      19: '/data/icons/' + (active ? '' : 'disabled/') + '19.png',
-      32: '/data/icons/' + (active ? '' : 'disabled/') + '32.png',
-      38: '/data/icons/' + (active ? '' : 'disabled/') + '38.png',
-      48: '/data/icons/' + (active ? '' : 'disabled/') + '48.png',
-      64: '/data/icons/' + (active ? '' : 'disabled/') + '64.png'
+      32: '/data/icons/' + (active ? '' : 'disabled/') + '32.png'
     }
   });
   chrome.browserAction.setTitle({
     tabId,
-    title: active ? chrome.runtime.getManifest().name : 'Disabled on this hostname'
+    title: message || (active ? chrome.runtime.getManifest().name : 'Disabled on this hostname')
   });
 };
 window.reset = tab => {
   chrome.tabs.executeScript(tab.id, {
     code: `[...document.querySelectorAll('#global-dark-mode')].forEach(e => e.remove());`
-  });
+  }, () => chrome.runtime.lastError);
   window.icon(tab.id, false);
 };
 const onCommitted = ({tabId, frameId, url}) => {
@@ -37,10 +33,18 @@ const onCommitted = ({tabId, frameId, url}) => {
           level: '${localStorage.getItem('level') || '0.10'}'
         };
       `
-    }, () => chrome.tabs.executeScript(tabId, {
-      runAt: 'document_start',
-      file: '/data/inject.js'
-    }));
+    }, () => {
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        window.icon(tabId, false, lastError.message);
+      }
+      else {
+        chrome.tabs.executeScript(tabId, {
+          runAt: 'document_start',
+          file: '/data/inject.js'
+        });
+      }
+    });
   }
 };
 window.onCommitted = onCommitted;
@@ -147,8 +151,10 @@ function setAlartm(id, val) {
 
 chrome.commands.onCommand.addListener(async command => {
   const {pref, level} = await range();
-  chrome.storage.set({
-    [pref]: Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)))
+  const v = Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)));
+
+  chrome.storage.local.set({
+    [pref]: v
   });
 });
 

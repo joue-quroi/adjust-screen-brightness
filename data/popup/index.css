@@ -15,8 +15,13 @@ input {
 
 #toolbar {
   padding: 10px;
-  text-align: right;
   background-color: #333;
+  display: grid;
+  grid-template-columns: 1fr min-content min-content;
+  grid-gap: 10px;
+}
+#shortcuts {
+  justify-self: start;
 }
 #content {
   background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, white 50%, white 100%);

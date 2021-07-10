@@ -94,3 +94,7 @@ document.getElementById('enable').addEventListener('click', e => {
     });
   });
 });
+
+document.getElementById('shortcuts').addEventListener('click', () => chrome.tabs.create({
+  url: chrome.runtime.getManifest().homepage_url + '#faq5'
+}));
