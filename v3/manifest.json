@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "version": "0.2.0",
+  "name": "Adjust Screen Brightness",
+  "description": "__MSG_description__",
+  "default_locale": "en",
+  "icons": {
+    "16": "data/icons/16.png",
+    "32": "data/icons/32.png",
+    "48": "data/icons/48.png",
+    "64": "data/icons/64.png",
+    "128": "data/icons/128.png",
+    "256": "data/icons/256.png",
+    "512": "data/icons/512.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "alarms",
+    "idle"
+  ],
+  "homepage_url": "https://add0n.com/eye-protector.html?from=brightness",
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": [
+      "data/inject.js"
+    ],
+    "run_at": "document_start"
+  }],
+  "action": {
+    "default_popup": "data/popup/index.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "description": "Press the action button"
+    },
+    "increase": {
+      "description": "Increment brightness level by 0.05"
+    },
+    "decrease": {
+      "description": "Decrement brightness level by 0.05"
+    }
+  },
+  "options_ui": {
+    "page": "data/options/index.html"
+  }
+}

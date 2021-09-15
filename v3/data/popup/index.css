@@ -1,0 +1,73 @@
+body {
+  width: 400px;
+  color: #3c4043;
+  font-size: 13px;
+  margin: 0;
+}
+body,
+input {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+}
+input {
+  font-size: 11px;
+  outline: none;
+}
+
+#toolbar {
+  padding: 10px;
+  background-color: #333;
+  display: grid;
+  grid-template-columns: 1fr min-content min-content;
+  grid-gap: 10px;
+}
+#shortcuts {
+  justify-self: start;
+}
+#content {
+  background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, white 50%, white 100%);
+  padding: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  font-weight: normal;
+}
+input[type=range] {
+  width: 100%;
+  box-sizing: border-box;
+}
+span {
+  min-width: 40px;
+  text-align: right;
+}
+
+[hbox] {
+  display: flex;
+}
+[align=center] {
+  align-items: center;
+}
+[pack=center] {
+  justify-content: center;
+}
+
+.night {
+  color: #ccc;
+}
+.sun {
+  background: url('sun.svg') left 0 center no-repeat;
+  width: 48px;
+  background-size: 42px;
+}
+.moon {
+  background: url('moon.svg') left 3px center no-repeat;
+  width: 48px;
+  background-size: 38px;
+}
+
+.hidden {
+  display: none;
+}
