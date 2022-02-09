@@ -19,6 +19,20 @@ document.addEventListener('input', ({target}) => {
   }
 });
 
+const update = (focus = true) => chrome.runtime.sendMessage({
+  method: 'range'
+}, range => {
+  document.body.dataset.mode = range.pref;
+  if (focus) {
+    document.getElementById(range.pref).focus();
+  }
+});
+chrome.storage.onChanged.addListener(ps => {
+  if (ps['day-time'] || ps['night-time']) {
+    update(false);
+  }
+});
+
 chrome.storage.local.get({
   'day-time': '08:00',
   'night-time': '19:00',
@@ -35,6 +49,8 @@ chrome.storage.local.get({
   document.getElementById('night-range').dispatchEvent(new Event('input', {
     bubbles: true
   }));
+
+  update();
 });
 
 let tab;
@@ -42,11 +58,9 @@ chrome.tabs.query({
   currentWindow: true,
   active: true
 }, tabs => {
-  console.log(1);
   tab = tabs[0];
   try {
     const {hostname, protocol} = new URL(tab.url);
-    console.log(3);
     if (protocol === 'http:' || protocol === 'https:') {
       chrome.storage.local.get({
         exceptions: []

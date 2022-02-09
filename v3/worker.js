@@ -8,6 +8,13 @@ const range = async () => {
   const day = prefs['day-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
   let night = prefs['night-time'].split(':').map((s, i) => s * (i === 0 ? 60 : 1)).reduce((p, c) => p + c, 0);
 
+  if (night === day) {
+    return {
+      pref: 'night-range',
+      level: prefs['night-range']
+    };
+  }
+
   if (night <= day) {
     night += 24 * 60;
   }
@@ -87,7 +94,7 @@ chrome.storage.onChanged.addListener(ps => {
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender) => {
+chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'icon') {
     chrome.action.setIcon({
       tabId: sender.tab.id,
@@ -100,6 +107,10 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       tabId: sender.tab.id,
       title: (request.excepted ? 'Brightness control is disabled on this hostname' : chrome.runtime.getManifest().name)
     });
+  }
+  else if (request.method === 'range') {
+    range().then(response);
+    return true;
   }
 });
 
