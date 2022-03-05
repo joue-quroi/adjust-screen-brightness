@@ -43,6 +43,9 @@
     },
     "decrease": {
       "description": "Decrement brightness level by 0.05"
+    },
+    "enabled": {
+      "description": "Toggle the global enable and disable state"
     }
   },
   "options_ui": {

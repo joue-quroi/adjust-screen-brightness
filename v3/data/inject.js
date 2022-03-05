@@ -31,7 +31,8 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 
   chrome.storage.local.get({
     'level': 0.1,
-    'exceptions': []
+    'exceptions': [],
+    'enabled': true
   }, prefs => {
     excepted = prefs.exceptions.indexOf(location.hostname) !== -1;
     if (excepted) {
@@ -41,6 +42,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       });
     }
     style.textContent = css(prefs.level);
+    style.disabled = prefs.enabled === false;
   });
 
   chrome.storage.onChanged.addListener(ps => {
@@ -64,7 +66,12 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       });
     }
     if (ps.level) {
+      const disabled = style.disabled;
       style.textContent = css(ps.level.newValue);
+      style.disabled = disabled;
+    }
+    if (ps.enabled) {
+      style.disabled = ps.enabled.newValue === false;
     }
   });
 }

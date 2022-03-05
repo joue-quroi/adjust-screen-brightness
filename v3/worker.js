@@ -57,15 +57,30 @@ function setAlartm(id, val) {
   });
 }
 
+function state(enabled) {
+  chrome.action.setIcon({
+    path: {
+      '16': 'data/icons/' + (enabled ? '' : 'disabled/') + '16.png',
+      '32': 'data/icons/' + (enabled ? '' : 'disabled/') + '32.png'
+    }
+  });
+  chrome.action.setTitle({
+    title: enabled ? 'Extension is enabled' : 'Extension is globally disabled'
+  });
+}
+
 {
   const startup = () => {
     chrome.storage.local.get({
       'day-time': '08:00',
-      'night-time': '19:00'
+      'night-time': '19:00',
+      'enabled': true
     }, prefs => {
       setAlartm('day-time', prefs['day-time']);
       setAlartm('night-time', prefs['night-time']);
       update('start.up');
+
+      state(prefs.enabled);
     });
   };
   chrome.runtime.onStartup.addListener(startup);
@@ -92,6 +107,9 @@ chrome.storage.onChanged.addListener(ps => {
   if (ps['night-time']) {
     setAlartm('night-time', ps['night-time'].newValue);
   }
+  if (ps['enabled']) {
+    state(ps.enabled.newValue);
+  }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
@@ -115,12 +133,21 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 });
 
 chrome.commands.onCommand.addListener(async command => {
-  const {pref, level} = await range();
-  const v = Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)));
+  if (command === 'enabled') {
+    chrome.storage.local.get({
+      enabled: true
+    }, prefs => chrome.storage.local.set({
+      enabled: !prefs.enabled
+    }));
+  }
+  else {
+    const {pref, level} = await range();
+    const v = Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)));
 
-  chrome.storage.local.set({
-    [pref]: v
-  });
+    chrome.storage.local.set({
+      [pref]: v
+    });
+  }
 });
 
 /* FAQs & Feedback */

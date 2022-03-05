@@ -37,7 +37,8 @@ chrome.storage.local.get({
   'day-time': '08:00',
   'night-time': '19:00',
   'day-range': 0.1,
-  'night-range': 0.2
+  'night-range': 0.2,
+  'enabled': true
 }, prefs => {
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];
@@ -49,6 +50,8 @@ chrome.storage.local.get({
   document.getElementById('night-range').dispatchEvent(new Event('input', {
     bubbles: true
   }));
+
+  document.getElementById('switch').value = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
 
   update();
 });
@@ -130,6 +133,18 @@ document.getElementById('enable').addEventListener('click', e => {
 
     e.target.disabled = true;
     document.getElementById('disable').disabled = false;
+  });
+});
+
+
+document.getElementById('switch').addEventListener('click', () => {
+  chrome.storage.local.get({
+    enabled: true
+  }, prefs => {
+    chrome.storage.local.set({
+      enabled: !prefs.enabled
+    });
+    document.getElementById('switch').value = prefs.enabled ? 'Enable Everywhere' : 'Disable Everywhere';
   });
 });
 

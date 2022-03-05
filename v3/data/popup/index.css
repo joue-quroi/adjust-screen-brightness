@@ -1,5 +1,5 @@
 body {
-  width: 400px;
+  width: 500px;
   color: #3c4043;
   font-size: 13px;
   margin: 0;
@@ -31,7 +31,7 @@ input[type=button]:disabled {
   padding: 10px;
   background-color: #333;
   display: grid;
-  grid-template-columns: 1fr min-content min-content;
+  grid-template-columns: 1fr min-content min-content min-content;
   grid-gap: 10px;
 }
 #shortcuts {

@@ -22,4 +22,8 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     document.getElementById('disable').click();
   }
+  else if (meta && e.code === 'KeyT') {
+    e.preventDefault();
+    document.getElementById('switch').click();
+  }
 });
