@@ -29,10 +29,24 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   style.setAttribute('media', 'screen');
   document.documentElement.appendChild(style);
 
-  chrome.storage.local.get({
+
+  const cc = () => chrome.storage.local.get({
     'level': 0.1,
-    'exceptions': [],
+    'hostnames': {},
+    'pref': 'day-range',
     'enabled': true
+  }, prefs => {
+    if (prefs.hostnames[location.hostname]) {
+      style.textContent = css(prefs.hostnames[location.hostname][prefs.pref]);
+    }
+    else {
+      style.textContent = css(prefs.level);
+    }
+    style.disabled = prefs.enabled === false;
+  });
+
+  chrome.storage.local.get({
+    'exceptions': []
   }, prefs => {
     excepted = prefs.exceptions.indexOf(location.hostname) !== -1;
     if (excepted) {
@@ -41,8 +55,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         excepted
       });
     }
-    style.textContent = css(prefs.level);
-    style.disabled = prefs.enabled === false;
+    cc();
   });
 
   chrome.storage.onChanged.addListener(ps => {
@@ -53,12 +66,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         style.textContent = css(0);
       }
       else {
-        chrome.storage.local.get({
-          'level': 0.1,
-          'exceptions': []
-        }, prefs => {
-          style.textContent = css(prefs.level);
-        });
+        cc();
       }
       chrome.runtime.sendMessage({
         method: 'icon',
@@ -66,12 +74,13 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       });
     }
     if (ps.level) {
-      const disabled = style.disabled;
-      style.textContent = css(ps.level.newValue);
-      style.disabled = disabled;
+      cc();
     }
     if (ps.enabled) {
       style.disabled = ps.enabled.newValue === false;
+    }
+    if (ps.hostnames) {
+      cc();
     }
   });
 }

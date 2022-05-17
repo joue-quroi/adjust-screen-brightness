@@ -37,7 +37,8 @@ async function update(reason) {
   const o = await range();
   // console.log('update', reason, o);
   chrome.storage.local.set({
-    level: o.level
+    level: o.level,
+    pref: o.pref
   });
 }
 

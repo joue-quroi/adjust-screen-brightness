@@ -8,11 +8,13 @@ body,
 input {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
 }
+button,
 input {
   font-size: 11px;
   outline: none;
 }
 
+button,
 input[type=button] {
   height: 24px;
   color: #444;
@@ -21,10 +23,14 @@ input[type=button] {
   text-shadow: rgb(240, 240, 240) 0 1px 0;
   border: solid 1px rgba(0, 0, 0, 0.25);
   cursor: pointer;
+  white-space: nowrap;
 }
+.disabled,
+button:disabled,
 input[type=button]:disabled {
   opacity: 0.5;
   cursor: default;
+  pointer-events: none;
 }
 
 #toolbar {
@@ -52,11 +58,11 @@ th {
   text-align: left;
   font-weight: normal;
 }
-input[type=range] {
+#content input[type=range] {
   width: 100%;
   box-sizing: border-box;
 }
-span {
+#content span {
   min-width: 40px;
   text-align: right;
 }
@@ -108,4 +114,16 @@ body[data-mode=night-range] tbody.night div::before {
   color: whitesmoke;
   background-color: #0075ff;
   padding: 2px 5px;
+}
+
+#mode {
+  display: grid;
+  padding: 15px;
+  grid-template-columns: 1fr repeat(4, min-content);
+  white-space: nowrap;
+  align-items: center;
+  grid-gap: 5px;
+}
+#mode input {
+  margin: 0;
 }

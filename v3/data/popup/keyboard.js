@@ -26,4 +26,12 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     document.getElementById('switch').click();
   }
+  else if (meta && e.code === 'KeyW') {
+    e.preventDefault();
+    document.getElementById('global').click();
+  }
+  else if (meta && e.code === 'KeyH') {
+    e.preventDefault();
+    document.getElementById('hostname').click();
+  }
 });

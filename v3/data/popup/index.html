@@ -1,54 +1,63 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" href="index.css">
-  </head>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="index.css">
+</head>
 
-  <body>
-    <div id="toolbar">
-      <input type="button" value="Keyboard Shortcuts" id="shortcuts">
-      <input type="button" value="Disable Everywhere" id="switch" title="Ctrl + T or Command + T">
-      <input disabled type="button" value="Disable Here" id="disable" title="Ctrl + D or Command + D">
-      <input disabled type="button" value="Enable Here" id="enable" title="Ctrl + E or Command + E">
-    </div>
-    <div id="content" title="Press Shift key for step size of 5">
-      <table>
-        <tbody class="day">
-          <tr>
-            <td rowspan="2" class="sun"></td>
-            <td>Start Time&nbsp;<input type="time" id="day-time"></td>
-          </tr>
-          <tr>
-            <td>
-              <div hbox align=center>
-                <input type="range" min=0 max=1 id="day-range" value="0.9" step="0.01">
-                <span>90%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">.</td>
-          </tr>
-        </tbody>
-        <tbody class="night">
-          <tr>
-            <td rowspan="2" class="moon"></td>
-            <td>Start Time&nbsp;<input type="time" id="night-time"></td>
-          </tr>
-          <tr>
-            <td>
-              <div hbox  align=center>
-                <input type="range" min=0 max=1 id="night-range" value="0.9" step="0.01">
-                <span>80%</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<body>
+  <div id="toolbar">
+    <input type="button" value="Keyboard Shortcuts" id="shortcuts">
+    <button id="switch" title="Ctrl + T or Command + T">Disable Everywhere</button>
+    <button disabled id="disable" title="Ctrl + D or Command + D"><u>D</u>isable Here</button>
+    <button disabled id="enable" title="Ctrl + E or Command + E"><u>E</u>nable Here</button>
+  </div>
+  <div id="content" title="Press Shift key for step size of 5">
+    <table>
+      <tbody class="day">
+        <tr>
+          <td rowspan="2" class="sun"></td>
+          <td>Start Time&nbsp;<input type="time" id="day-time"></td>
+        </tr>
+        <tr>
+          <td>
+            <div hbox align=center>
+              <input type="range" min=0 max=1 id="day-range" value="0.9" step="0.01">
+              <span>90%</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">.</td>
+        </tr>
+      </tbody>
+      <tbody class="night">
+        <tr>
+          <td rowspan="2" class="moon"></td>
+          <td>Start Time&nbsp;<input type="time" id="night-time"></td>
+        </tr>
+        <tr>
+          <td>
+            <div hbox  align=center>
+              <input type="range" min=0 max=1 id="night-range" value="0.9" step="0.01">
+              <span>80%</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="mode" title="Ctrl + W or Command + W -> Use global brightness level
+Ctrl + H or Command + H -> Use per-hostname brightness level">
+    <span>Apply Brightness To</span>
+    <input type="radio" name="mode" id="global" checked>
+    <label for="global">All <u>W</u>ebsites</label>
+    <input type="radio" name="mode" id="hostname">
+    <label for="hostname">This <u>H</u>ostname</label>
+  </div>
 
-    <script src="keyboard.js"></script>
-    <script src="index.js"></script>
-  </body>
+  <script src="keyboard.js"></script>
+  <script src="index.js"></script>
+</body>
 </html>

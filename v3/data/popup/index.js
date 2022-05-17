@@ -1,15 +1,53 @@
 'use strict';
 
+let tab;
+let hostname;
+
 document.addEventListener('input', ({target}) => {
   if (target.id.indexOf('-range') !== -1) {
     target.parentNode.querySelector('span').textContent = parseInt(target.value * 100) + '%';
   }
 });
 
+const event = () => {
+  document.getElementById('day-range').dispatchEvent(new Event('input', {
+    bubbles: true
+  }));
+  document.getElementById('night-range').dispatchEvent(new Event('input', {
+    bubbles: true
+  }));
+};
+
 document.addEventListener('input', ({target}) => {
-  if (target.id.indexOf('-range') !== -1) {
-    chrome.storage.local.set({
-      [target.id]: 1 - target.value
+  if (target.id.indexOf('-range') !== -1 || (target.id === 'hostname' && target.checked)) {
+    if (document.getElementById('hostname').checked) {
+      chrome.storage.local.get({
+        hostnames: {}
+      }, prefs => {
+        prefs.hostnames[hostname] = {
+          'day-range': 1 - document.getElementById('day-range').value,
+          'night-range': 1 - document.getElementById('night-range').value
+        };
+        chrome.storage.local.set(prefs);
+      });
+    }
+    else {
+      chrome.storage.local.set({
+        [target.id]: 1 - target.value
+      });
+    }
+  }
+  else if (target.id === 'global' || target.id === 'hostname') {
+    chrome.storage.local.get({
+      'day-range': 0.1,
+      'night-range': 0.2,
+      'hostnames': {}
+    }, prefs => {
+      delete prefs.hostnames[hostname];
+      chrome.storage.local.set(prefs);
+      document.getElementById('day-range').value = 1 - prefs['day-range'];
+      document.getElementById('night-range').value = 1 - prefs['night-range'];
+      event();
     });
   }
   else {
@@ -43,38 +81,46 @@ chrome.storage.local.get({
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];
   document.getElementById('day-range').value = 1 - prefs['day-range'];
-  document.getElementById('day-range').dispatchEvent(new Event('input', {
-    bubbles: true
-  }));
   document.getElementById('night-range').value = 1 - prefs['night-range'];
-  document.getElementById('night-range').dispatchEvent(new Event('input', {
-    bubbles: true
-  }));
+  event();
 
   document.getElementById('switch').value = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
 
   update();
 });
 
-let tab;
 chrome.tabs.query({
   currentWindow: true,
   active: true
 }, tabs => {
   tab = tabs[0];
   try {
-    const {hostname, protocol} = new URL(tab.url);
-    if (protocol === 'http:' || protocol === 'https:') {
+    const o = new URL(tab.url);
+    hostname = o.hostname;
+
+    if (o.protocol === 'http:' || o.protocol === 'https:') {
       chrome.storage.local.get({
-        exceptions: []
+        'exceptions': [],
+        'hostnames': {}
       }, prefs => {
+        // exceptions
         if (prefs.exceptions.indexOf(hostname) === -1) {
           document.getElementById('disable').disabled = false;
         }
         else {
           document.getElementById('enable').disabled = false;
         }
+        // hostnames
+        if (prefs.hostnames[hostname]) {
+          document.getElementById('hostname').checked = true;
+          document.getElementById('day-range').value = 1 - prefs.hostnames[hostname]['day-range'];
+          document.getElementById('night-range').value = 1 - prefs.hostnames[hostname]['night-range'];
+          event();
+        }
       });
+    }
+    else {
+      document.getElementById('mode').classList.add('disabled');
     }
     // do we have injection
     chrome.tabs.sendMessage(tab.id, {
