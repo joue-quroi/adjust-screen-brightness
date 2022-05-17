@@ -143,7 +143,7 @@ chrome.commands.onCommand.addListener(async command => {
   }
   else {
     const {pref, level} = await range();
-    const v = Math.max(0, Math.min(1, level + (command === 'increase' ? -0.05 : +0.05)));
+    const v = Math.max(0, Math.min(1.2, level + (command === 'increase' ? -0.05 : +0.05)));
 
     chrome.storage.local.set({
       [pref]: v

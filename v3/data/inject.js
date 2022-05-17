@@ -11,17 +11,29 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 {
   let excepted = false;
 
-  const css = level => level !== '0.00' && excepted === false ? `html:before {
-    content: " ";
-    z-index: 2147483647;
-    pointer-events: none;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, ${level});
-  }` : '';
+  const css = (level, type) => {
+    if (level !== '0.00' && excepted === false) {
+      if (type === 'filter') {
+        return `html {filter: brightness(${1 - level}) !important;}`;
+      }
+      else {
+        return `html:before {
+  content: " ";
+  z-index: 2147483647;
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, ${level});
+}`;
+      }
+    }
+    else {
+      return '';
+    }
+  };
 
   const style = document.createElement('style');
   style.classList.add('adjust-screen-brightness');
@@ -34,13 +46,14 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     'level': 0.1,
     'hostnames': {},
     'pref': 'day-range',
-    'enabled': true
+    'enabled': true,
+    'styling-method': 'filter'
   }, prefs => {
     if (prefs.hostnames[location.hostname]) {
-      style.textContent = css(prefs.hostnames[location.hostname][prefs.pref]);
+      style.textContent = css(prefs.hostnames[location.hostname][prefs.pref], prefs['styling-method']);
     }
     else {
-      style.textContent = css(prefs.level);
+      style.textContent = css(prefs.level, prefs['styling-method']);
     }
     style.disabled = prefs.enabled === false;
   });
@@ -73,13 +86,10 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         excepted
       });
     }
-    if (ps.level) {
-      cc();
-    }
     if (ps.enabled) {
       style.disabled = ps.enabled.newValue === false;
     }
-    if (ps.hostnames) {
+    if (ps.hostnames || ps.level || ps['styling-method']) {
       cc();
     }
   });
