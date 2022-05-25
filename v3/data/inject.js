@@ -8,13 +8,19 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   }
 });
 
+// https://vimeo.com/275870896 -> Fullscreen
+// https://classroom.google.com/h
+
 {
   let excepted = false;
 
   const css = (level, type) => {
     if (level !== '0.00' && excepted === false) {
       if (type === 'filter') {
-        return `html {filter: brightness(${1 - level}) !important;}`;
+        return `html {
+  filter: brightness(${1 - level}) !important;
+  background: #fff;
+}`;
       }
       else {
         return `html:before {
