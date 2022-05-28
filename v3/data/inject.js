@@ -10,20 +10,19 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 
 // https://vimeo.com/275870896 -> Fullscreen
 // https://classroom.google.com/h
+// https://drive.google.com/drive/my-drive
+// https://kirkmcdonald.github.io/calc.html#data=1-1-19&items=advanced-circuit:f:1
 
 {
   let excepted = false;
 
   const css = (level, type) => {
-    if (level !== '0.00' && excepted === false) {
-      if (type === 'filter') {
-        return `html {
-  filter: brightness(${1 - level}) !important;
-  background: #fff;
-}`;
-      }
-      else {
-        return `html:before {
+    if (level === 0 || excepted) {
+      return '';
+    }
+
+    if ((type === 'adaptive' && level > 0) || type === 'rgba') {
+      return `html:before {
   content: " ";
   z-index: 2147483647;
   pointer-events: none;
@@ -34,10 +33,12 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   height: 100vh;
   background-color: rgba(0, 0, 0, ${level});
 }`;
-      }
     }
     else {
-      return '';
+      return `html {
+filter: brightness(${1 - level}) !important;
+background: #fff;
+}`;
     }
   };
 
@@ -53,7 +54,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     'hostnames': {},
     'pref': 'day-range',
     'enabled': true,
-    'styling-method': 'filter'
+    'styling-method': 'adaptive' // adaptive, rgba, filter
   }, prefs => {
     if (prefs.hostnames[location.hostname]) {
       style.textContent = css(prefs.hostnames[location.hostname][prefs.pref], prefs['styling-method']);
