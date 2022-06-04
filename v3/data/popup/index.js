@@ -197,3 +197,21 @@ document.getElementById('switch').addEventListener('click', () => {
 document.getElementById('shortcuts').addEventListener('click', () => chrome.tabs.create({
   url: chrome.runtime.getManifest().homepage_url + '#faq5'
 }));
+
+// adjust the brightness setting with the mouse scroll wheel
+document.addEventListener('wheel', e => {
+  let range;
+  if (e.target.closest('.day')) {
+    range = document.getElementById('day-range');
+  }
+  else if (e.target.closest('.night')) {
+    range = document.getElementById('night-range');
+  }
+
+  if (range) {
+    range.valueAsNumber += (e.deltaY < 0 ? 1 : -1) * 0.01;
+    range.dispatchEvent(new Event('input', {
+      bubbles: true
+    }));
+  }
+});
