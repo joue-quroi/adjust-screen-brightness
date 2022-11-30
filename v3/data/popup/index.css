@@ -1,8 +1,16 @@
+:root {
+  --light: whitesmoke;
+  --dark: #333;
+  --gap: 5px;
+  --blue: #0075ff;
+  --border: solid 1px rgba(0, 0, 0, 0.25);
+}
 body {
   width: 500px;
   color: #3c4043;
   font-size: 13px;
   margin: 0;
+  accent-color: var(--blue);
 }
 body,
 input {
@@ -12,6 +20,7 @@ button,
 input {
   font-size: 11px;
   outline: none;
+  border: var(--border);
 }
 
 button,
@@ -21,7 +30,7 @@ input[type=button] {
   background-image: linear-gradient(rgb(237, 237, 237), rgb(237, 237, 237) 38%, rgb(222, 222, 222));
   box-shadow: rgba(0, 0, 0, 0.08) 0 1px 0, rgba(255, 255, 255, 0.75) 0 1px 2px inset;
   text-shadow: rgb(240, 240, 240) 0 1px 0;
-  border: solid 1px rgba(0, 0, 0, 0.25);
+  border: var(--border);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -31,6 +40,13 @@ input[type=button]:disabled {
   opacity: 0.5;
   cursor: default;
   pointer-events: none;
+}
+input[type=range] {
+  width: 100%;
+  box-sizing: border-box;
+}
+input[type=time] {
+  padding: 0 var(--gap);
 }
 
 #toolbar {
@@ -43,77 +59,9 @@ input[type=button]:disabled {
 #shortcuts {
   justify-self: start;
 }
-#content {
-  background: linear-gradient(to top, #333 0%, #333 50%, #333 50%, whitesmoke 50%, whitesmoke 100%);
-  padding: 10px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-tbody {
-  position: relative;
-}
-th {
-  text-align: left;
-  font-weight: normal;
-}
-#content input[type=range] {
-  width: 100%;
-  box-sizing: border-box;
-}
-#content span {
-  min-width: 40px;
-  text-align: right;
-}
-
-[hbox] {
-  display: flex;
-}
-[align=center] {
-  align-items: center;
-}
-[pack=center] {
-  justify-content: center;
-}
-
-.night {
-  color: #ccc;
-}
-.sun {
-  background: url('sun.svg') left 0 center no-repeat;
-  width: 48px;
-  background-size: 42px;
-}
-.moon {
-  background: url('moon.svg') left 3px center no-repeat;
-  width: 48px;
-  background-size: 38px;
-}
 
 .hidden {
   display: none;
-}
-
-body[data-mode=day-range] tbody.day div::before {
-  content: 'active';
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  font-size: 10px;
-  color: whitesmoke;
-  background-color: #0075ff;
-  padding: 2px 5px;
-}
-body[data-mode=night-range] tbody.night div::before {
-  content: 'active';
-  position: absolute;
-  top: -3px;
-  right: -5px;
-  font-size: 10px;
-  color: whitesmoke;
-  background-color: #0075ff;
-  padding: 2px 5px;
 }
 
 #mode {
@@ -126,4 +74,62 @@ body[data-mode=night-range] tbody.night div::before {
 }
 #mode input {
   margin: 0;
+}
+
+.tbl {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  grid-gap: var(--gap);
+  padding: calc(2 * var(--gap));
+  position: relative;
+  content: 'active';
+}
+.tbl::before {
+  content: 'active';
+  position: absolute;
+  top: var(--gap);
+  right: var(--gap);
+  font-size: 10px;
+  padding: 2px var(--gap);
+  color: var(--light);
+  background-color: var(--blue);
+}
+
+.tbl.day {
+  background-color: var(--light);
+}
+.tbl .icon {
+  grid-row: 1/3;
+  background-size: 42px;
+  background-repeat: no-repeat;
+}
+.tbl .time {
+  display: grid;
+  grid-template-columns: min-content min-content;
+  white-space: nowrap;
+  grid-gap: var(--gap);
+  padding: 0 var(--gap);
+}
+.tbl.day .icon {
+  background-image: url('icons/sun.svg');
+}
+.tbl.night {
+  color: var(--light);
+  background-color: var(--dark);
+}
+.tbl.night .icon {
+  background-image: url('icons/moon.svg');
+}
+.tbl .progress {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  align-items: center;
+  grid-gap: calc(2 * var(--gap));
+}
+
+body[data-mode=day-range] .night::before {
+  display: none;
+}
+body[data-mode=night-range] .day::before {
+  display: none;
 }
