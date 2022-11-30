@@ -16,22 +16,27 @@ document.addEventListener('keydown', e => {
 
   if (meta && e.code === 'KeyE') {
     e.preventDefault();
+    e.stopPropagation();
     document.getElementById('enable').click();
   }
   else if (meta && e.code === 'KeyD') {
     e.preventDefault();
+    e.stopPropagation();
     document.getElementById('disable').click();
   }
   else if (meta && e.code === 'KeyT') {
     e.preventDefault();
+    e.stopPropagation();
     document.getElementById('switch').click();
   }
   else if (meta && e.code === 'KeyW') {
     e.preventDefault();
+    e.stopPropagation();
     document.getElementById('global').click();
   }
   else if (meta && e.code === 'KeyH') {
     e.preventDefault();
+    e.stopPropagation();
     document.getElementById('hostname').click();
   }
 });

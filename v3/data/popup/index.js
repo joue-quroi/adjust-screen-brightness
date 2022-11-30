@@ -18,7 +18,11 @@ const event = () => {
   }));
 };
 
-document.addEventListener('input', ({target}) => {
+document.addEventListener('input', e => {
+  const {target, isTrusted} = e;
+
+  const save = prefs => isTrusted && chrome.storage.local.set(prefs);
+
   if (target.id.indexOf('-range') !== -1 || (target.id === 'hostname' && target.checked)) {
     if (document.getElementById('hostname').checked) {
       chrome.storage.local.get({
@@ -28,11 +32,11 @@ document.addEventListener('input', ({target}) => {
           'day-range': 1 - document.getElementById('day-range').value,
           'night-range': 1 - document.getElementById('night-range').value
         };
-        chrome.storage.local.set(prefs);
+        save(prefs);
       });
     }
     else {
-      chrome.storage.local.set({
+      save({
         [target.id]: 1 - target.value
       });
     }
@@ -44,14 +48,14 @@ document.addEventListener('input', ({target}) => {
       'hostnames': {}
     }, prefs => {
       delete prefs.hostnames[hostname];
-      chrome.storage.local.set(prefs);
+      save(prefs);
       document.getElementById('day-range').value = 1 - prefs['day-range'];
       document.getElementById('night-range').value = 1 - prefs['night-range'];
       event();
     });
   }
   else {
-    chrome.storage.local.set({
+    save({
       [target.id]: target.value
     });
   }
@@ -87,58 +91,59 @@ chrome.storage.local.get({
   document.getElementById('switch').value = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
 
   update();
-});
 
-chrome.tabs.query({
-  currentWindow: true,
-  active: true
-}, tabs => {
-  tab = tabs[0];
-  try {
-    const o = new URL(tab.url);
-    hostname = o.hostname;
+  chrome.tabs.query({
+    currentWindow: true,
+    active: true
+  }, tabs => {
+    tab = tabs[0];
+    try {
+      const o = new URL(tab.url);
+      hostname = o.hostname;
 
-    if (o.protocol === 'http:' || o.protocol === 'https:') {
-      chrome.storage.local.get({
-        'exceptions': [],
-        'hostnames': {}
-      }, prefs => {
-        // exceptions
-        if (prefs.exceptions.indexOf(hostname) === -1) {
-          document.getElementById('disable').disabled = false;
-        }
-        else {
-          document.getElementById('enable').disabled = false;
-        }
-        // hostnames
-        if (prefs.hostnames[hostname]) {
-          document.getElementById('hostname').checked = true;
-          document.getElementById('day-range').value = 1 - prefs.hostnames[hostname]['day-range'];
-          document.getElementById('night-range').value = 1 - prefs.hostnames[hostname]['night-range'];
-          event();
+      if (o.protocol === 'http:' || o.protocol === 'https:') {
+        chrome.storage.local.get({
+          'exceptions': [],
+          'hostnames': {}
+        }, prefs => {
+          // exceptions
+          if (prefs.exceptions.indexOf(hostname) === -1) {
+            document.getElementById('disable').disabled = false;
+          }
+          else {
+            document.getElementById('enable').disabled = false;
+          }
+          // hostnames
+          if (prefs.hostnames[hostname]) {
+            document.getElementById('hostname').checked = true;
+            document.getElementById('day-range').value = 1 - prefs.hostnames[hostname]['day-range'];
+            document.getElementById('night-range').value = 1 - prefs.hostnames[hostname]['night-range'];
+            event();
+          }
+        });
+      }
+      else {
+        document.getElementById('mode').classList.add('disabled');
+      }
+      // do we have injection
+      chrome.tabs.sendMessage(tab.id, {
+        method: 'ping'
+      }, r => {
+        chrome.runtime.lastError;
+        if (r !== 'pong') {
+          chrome.scripting.executeScript({
+            target: {
+              tabId: tab.id
+            },
+            files: ['/data/inject.js']
+          }).catch(() => {});
         }
       });
     }
-    else {
-      document.getElementById('mode').classList.add('disabled');
-    }
-    // do we have injection
-    chrome.tabs.sendMessage(tab.id, {
-      method: 'ping'
-    }, r => {
-      chrome.runtime.lastError;
-      if (r !== 'pong') {
-        chrome.scripting.executeScript({
-          target: {
-            tabId: tab.id
-          },
-          files: ['/data/inject.js']
-        }).catch(() => {});
-      }
-    });
-  }
-  catch (e) {}
+    catch (e) {}
+  });
 });
+
 
 document.getElementById('disable').addEventListener('click', e => {
   chrome.storage.local.get({
