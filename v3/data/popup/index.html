@@ -13,6 +13,15 @@
     <button disabled id="disable" title="Ctrl + D or Command + D"><u>D</u>isable Here</button>
     <button disabled id="enable" title="Ctrl + E or Command + E"><u>E</u>nable Here</button>
   </div>
+<datalist id="steplist">
+  <option>0</option>
+  <option>0.2</option>
+  <option>0.4</option>
+  <option>0.6</option>
+  <option>0.8</option>
+  <option>1.0</option>
+  <option>1.2</option>
+</datalist>
   <div id="content" title="Press Shift key for step size of 5">
     <div class="tbl day">
       <span class="icon"></span>
@@ -21,7 +30,7 @@
         <input type="time" id="day-time">
       </div>
       <div class="progress">
-        <input type="range" min=0 max=1.2 id="day-range" value="0.9" step="0.01">
+        <input type="range" min=0 max=1.2 id="day-range" value="0.9" step="0.01" list="steplist">
         <span>90%</span>
       </div>
     </div>
@@ -32,7 +41,7 @@
         <input type="time" id="night-time">
       </div>
       <div class="progress">
-        <input type="range" min=0 max=1.2 id="night-range" value="0.8" step="0.01">
+        <input type="range" min=0 max=1.2 id="night-range" value="0.8" step="0.01" list="steplist">
         <span>80%</span>
       </div>
     </div>

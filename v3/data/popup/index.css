@@ -117,12 +117,15 @@ input[type=time] {
   color: var(--light);
   background-color: var(--dark);
 }
+.tbl.night input {
+  color: var(--light);
+}
 .tbl.night .icon {
   background-image: url('icons/moon.svg');
 }
 .tbl .progress {
   display: grid;
-  grid-template-columns: 1fr min-content;
+  grid-template-columns: 1fr 4ch;
   align-items: center;
   grid-gap: calc(2 * var(--gap));
 }
