@@ -117,7 +117,7 @@ input[type=time] {
   color: var(--light);
   background-color: var(--dark);
 }
-.tbl.night input {
+.tbl.night input[type=range] {
   color: var(--light);
 }
 .tbl.night .icon {
