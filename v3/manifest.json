@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.2.9",
+  "version": "0.3.0",
   "name": "Adjust Screen Brightness",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -20,7 +20,7 @@
     "alarms",
     "idle"
   ],
-  "homepage_url": "https://add0n.com/eye-protector.html?from=brightness",
+  "homepage_url": "https://webextension.org/listing/screen-brightness.html",
   "background": {
     "service_worker": "worker.js"
   },
