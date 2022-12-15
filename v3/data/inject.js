@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
 
     if ((type === 'adaptive' && level > 0) || type === 'rgba') {
-      return `html:before {
+      return `html:after {
   content: " ";
   z-index: 2147483647;
   pointer-events: none;
@@ -36,8 +36,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
     else {
       return `html {
-filter: brightness(${1 - level}) !important;
-background: #fff;
+  filter: brightness(${1 - level}) !important;
 }`;
     }
   };
