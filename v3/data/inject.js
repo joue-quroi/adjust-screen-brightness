@@ -12,6 +12,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 // https://classroom.google.com/h
 // https://drive.google.com/drive/my-drive
 // https://kirkmcdonald.github.io/calc.html#data=1-1-19&items=advanced-circuit:f:1
+// https://thesilphroad.com/
 
 {
   let excepted = false;
@@ -22,7 +23,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
 
     if ((type === 'adaptive' && level > 0) || type === 'rgba') {
-      return `html:after {
+      return `html::before {
   content: " ";
   z-index: 2147483647;
   pointer-events: none;

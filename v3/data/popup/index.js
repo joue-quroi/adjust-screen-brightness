@@ -3,6 +3,11 @@
 let tab;
 let hostname;
 
+if (/Firefox/.test(navigator.userAgent)) {
+  document.getElementById('day-range').removeAttribute('list');
+  document.getElementById('night-range').removeAttribute('list');
+}
+
 document.addEventListener('input', ({target}) => {
   if (target.id.indexOf('-range') !== -1) {
     target.parentNode.querySelector('span').textContent = parseInt(target.value * 100) + '%';
