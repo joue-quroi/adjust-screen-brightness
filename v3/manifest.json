@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "name": "Adjust Screen Brightness",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -32,12 +32,10 @@
     "run_at": "document_start"
   }],
   "action": {
-    "default_popup": "data/popup/index.html"
+    "default_popup": "/data/popup/index.html"
   },
   "commands": {
-    "_execute_action": {
-      "description": "Press the action button"
-    },
+    "_execute_action": {},
     "increase": {
       "description": "Increment brightness level by 0.05"
     },

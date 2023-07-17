@@ -35,7 +35,9 @@ const range = async () => {
 
 async function update(reason) {
   const o = await range();
-  // console.log('update', reason, o);
+  if (update.log) {
+    console.log('update', reason, o);
+  }
   chrome.storage.local.set({
     level: o.level,
     pref: o.pref
@@ -61,8 +63,8 @@ function setAlartm(id, val) {
 function state(enabled) {
   chrome.action.setIcon({
     path: {
-      '16': 'data/icons/' + (enabled ? '' : 'disabled/') + '16.png',
-      '32': 'data/icons/' + (enabled ? '' : 'disabled/') + '32.png'
+      '16': '/data/icons/' + (enabled ? '' : 'disabled/') + '16.png',
+      '32': '/data/icons/' + (enabled ? '' : 'disabled/') + '32.png'
     }
   });
   chrome.action.setTitle({

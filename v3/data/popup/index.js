@@ -150,7 +150,7 @@ chrome.storage.local.get({
 });
 
 
-document.getElementById('disable').addEventListener('click', e => {
+document.getElementById('disable').onclick = e => {
   chrome.storage.local.get({
     exceptions: []
   }, prefs => {
@@ -168,9 +168,9 @@ document.getElementById('disable').addEventListener('click', e => {
     e.target.disabled = true;
     document.getElementById('enable').disabled = false;
   });
-});
+};
 
-document.getElementById('enable').addEventListener('click', e => {
+document.getElementById('enable').onclick = e => {
   chrome.storage.local.get({
     exceptions: []
   }, prefs => {
@@ -190,10 +190,10 @@ document.getElementById('enable').addEventListener('click', e => {
     e.target.disabled = true;
     document.getElementById('disable').disabled = false;
   });
-});
+};
 
 
-document.getElementById('switch').addEventListener('click', () => {
+document.getElementById('switch').onclick = () => {
   chrome.storage.local.get({
     enabled: true
   }, prefs => {
@@ -202,11 +202,11 @@ document.getElementById('switch').addEventListener('click', () => {
     });
     document.getElementById('switch').value = prefs.enabled ? 'Enable Everywhere' : 'Disable Everywhere';
   });
-});
+};
 
-document.getElementById('shortcuts').addEventListener('click', () => chrome.tabs.create({
+document.getElementById('shortcuts').onclick = () => chrome.tabs.create({
   url: chrome.runtime.getManifest().homepage_url + '#faq5'
-}));
+});
 
 // adjust the brightness setting with the mouse scroll wheel
 document.addEventListener('wheel', e => {

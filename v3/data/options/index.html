@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Adjust Screen Brightness</title>
+  <title>Options Page :: Adjust Screen Brightness</title>
   <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
   <div id="mode">
-    <span><a target="_blank" data-href="faq7">Brightness Method</a></span>
+    <span><a target="_blank" data-href="faq7">Method</a></span>
     <select id="styling-method">
       <option value="adaptive">Brightness Filter or Dark Div</option>
       <option value="filter">Use CSS Brightness Filter</option>
@@ -14,15 +14,16 @@
     </select>
   </div>
 
-  <p>A comma-separated list of hostnames to disable screen color adjustment.</p>
+  <p>Provide a list of hostnames separated by commas that should have their screen color adjustment disabled</p>
   <textarea rows="5" id="exceptions" placeholder="e.g.: www.google.com"></textarea>
 
   <p>
-    <input type="button" id="github" value="GitHub">
     <input type="button" id="support" value="Support Development">
+    <input type="button" id="github" value="GitHub">
   </p>
   <p>
-    <input type="button" id="reset" value="Factory Reset"> - <input type="button" id="save" value="Save Options">
+    <input type="button" id="reset" value="Factory Reset">
+    <input type="button" id="save" value="Save Options">
     <span id="toast"></span>
   </p>
 
