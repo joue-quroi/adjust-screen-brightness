@@ -8,9 +8,37 @@ if (/Firefox/.test(navigator.userAgent)) {
   document.getElementById('night-range').removeAttribute('list');
 }
 
-document.addEventListener('input', ({target}) => {
-  if (target.id.indexOf('-range') !== -1) {
+const save = (prefs, isTrusted = true) => {
+  if (isTrusted) {
+    console.log(isTrusted, prefs);
+    // console.log(new Error().stack);
+
+    chrome.storage.local.set(prefs);
+  }
+};
+
+const change = target => {
+  const dx = target.valueAsNumber - target.ov;
+
+  const aid = target.id === 'day-range' ? 'night-range' : 'day-range';
+  const ea = document.getElementById(aid);
+  ea.valueAsNumber += dx;
+  ea.dispatchEvent(new Event('input', {
+    bubbles: true
+  }));
+};
+
+document.addEventListener('input', e => {
+  const {target} = e;
+
+  if (target.id.endsWith('-range')) {
     target.parentNode.querySelector('span').textContent = parseInt(target.value * 100) + '%';
+
+    if (e.isTrusted && document.body.dataset.locked === 'true') {
+      change(target);
+    }
+
+    target.ov = target.valueAsNumber;
   }
 });
 
@@ -24,11 +52,10 @@ const event = () => {
 };
 
 document.addEventListener('input', e => {
-  const {target, isTrusted} = e;
+  const {target} = e;
+  const isTrusted = e.isTrusted || e.detail?.isTrusted || false;
 
-  const save = prefs => isTrusted && chrome.storage.local.set(prefs);
-
-  if (target.id.indexOf('-range') !== -1 || (target.id === 'hostname' && target.checked)) {
+  if (target.id.endsWith('-range') || (target.id === 'hostname' && target.checked)) {
     if (document.getElementById('hostname').checked) {
       chrome.storage.local.get({
         hostnames: {}
@@ -37,13 +64,19 @@ document.addEventListener('input', e => {
           'day-range': 1 - document.getElementById('day-range').value,
           'night-range': 1 - document.getElementById('night-range').value
         };
-        save(prefs);
+        save(prefs, isTrusted);
       });
+    }
+    else if (target.id.endsWith('-range')) {
+      save({
+        'day-range': 1 - document.getElementById('day-range').value,
+        'night-range': 1 - document.getElementById('night-range').value
+      }, isTrusted);
     }
     else {
       save({
         [target.id]: 1 - target.value
-      });
+      }, isTrusted);
     }
   }
   else if (target.id === 'global' || target.id === 'hostname') {
@@ -53,7 +86,7 @@ document.addEventListener('input', e => {
       'hostnames': {}
     }, prefs => {
       delete prefs.hostnames[hostname];
-      save(prefs);
+      save(prefs, isTrusted);
       document.getElementById('day-range').value = 1 - prefs['day-range'];
       document.getElementById('night-range').value = 1 - prefs['night-range'];
       event();
@@ -62,7 +95,7 @@ document.addEventListener('input', e => {
   else {
     save({
       [target.id]: target.value
-    });
+    }, isTrusted);
   }
 });
 
@@ -85,15 +118,22 @@ chrome.storage.local.get({
   'night-time': '19:00',
   'day-range': 0.1,
   'night-range': 0.2,
-  'enabled': true
+  'enabled': true,
+  'locked': false
 }, prefs => {
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];
+
+  document.getElementById('day-range').ov =
   document.getElementById('day-range').value = 1 - prefs['day-range'];
+  document.getElementById('night-range').ov =
   document.getElementById('night-range').value = 1 - prefs['night-range'];
+
+  document.getElementById('lock').classList[prefs.locked ? 'add' : 'remove']('locked');
+  document.body.dataset.locked = prefs['locked'];
   event();
 
-  document.getElementById('switch').value = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
+  document.getElementById('switch').textContent = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
 
   update();
 
@@ -156,15 +196,7 @@ document.getElementById('disable').onclick = e => {
   }, prefs => {
     const {hostname} = new URL(tab.url);
     prefs.exceptions.push(hostname);
-    chrome.storage.local.set(prefs);
-    // just in case js is not injected
-    chrome.action.setIcon({
-      tabId: tab.id,
-      path: {
-        16: '/data/icons/disabled/16.png',
-        32: '/data/icons/disabled/32.png'
-      }
-    });
+    save(prefs, true);
     e.target.disabled = true;
     document.getElementById('enable').disabled = false;
   });
@@ -177,30 +209,20 @@ document.getElementById('enable').onclick = e => {
     const {hostname} = new URL(tab.url);
     const n = prefs.exceptions.indexOf(hostname);
     prefs.exceptions.splice(n, 1);
-    chrome.storage.local.set(prefs);
-    // just in case js is not injected
-    chrome.action.setIcon({
-      tabId: tab.id,
-      path: {
-        16: '/data/icons/16.png',
-        32: '/data/icons/32.png'
-      }
-    });
-
+    save(prefs, true);
     e.target.disabled = true;
     document.getElementById('disable').disabled = false;
   });
 };
 
-
 document.getElementById('switch').onclick = () => {
   chrome.storage.local.get({
     enabled: true
   }, prefs => {
-    chrome.storage.local.set({
+    save({
       enabled: !prefs.enabled
-    });
-    document.getElementById('switch').value = prefs.enabled ? 'Enable Everywhere' : 'Disable Everywhere';
+    }, true);
+    document.getElementById('switch').textContent = prefs.enabled ? 'Enable Everywhere' : 'Disable Everywhere';
   });
 };
 
@@ -220,8 +242,23 @@ document.addEventListener('wheel', e => {
 
   if (range) {
     range.valueAsNumber += (e.deltaY < 0 ? 1 : -1) * 0.01;
-    range.dispatchEvent(new Event('input', {
-      bubbles: true
+    if (e.isTrusted) {
+      change(range);
+    }
+    range.dispatchEvent(new CustomEvent('input', {
+      bubbles: true,
+      detail: {
+        isTrusted: true
+      }
     }));
   }
+});
+
+document.getElementById('lock').addEventListener('click', e => {
+  e.target.classList.toggle('locked');
+  const locked = e.target.classList.contains('locked');
+  save({
+    locked
+  }, true);
+  document.body.dataset.locked = locked;
 });

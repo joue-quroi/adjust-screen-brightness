@@ -63,6 +63,11 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       style.textContent = css(prefs.level, prefs['styling-method']);
     }
     style.disabled = prefs.enabled === false;
+    chrome.runtime.sendMessage({
+      method: 'icon',
+      enabled: prefs.enabled,
+      excepted
+    });
   });
 
   chrome.storage.local.get({
@@ -84,6 +89,10 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 
       if (excepted) {
         style.textContent = css(0);
+        chrome.runtime.sendMessage({
+          method: 'icon',
+          excepted
+        });
       }
       else {
         cc();
@@ -95,6 +104,11 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
     if (ps.enabled) {
       style.disabled = ps.enabled.newValue === false;
+      chrome.runtime.sendMessage({
+        method: 'icon',
+        enabled: ps.enabled.newValue,
+        excepted
+      });
     }
     if (ps.hostnames || ps.level || ps['styling-method']) {
       cc();

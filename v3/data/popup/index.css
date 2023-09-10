@@ -82,15 +82,14 @@ input[type=time] {
   grid-gap: var(--gap);
   padding: calc(2 * var(--gap));
   position: relative;
-  content: 'active';
 }
 .tbl::before {
-  content: 'active';
+  content: ' ';
   position: absolute;
-  top: var(--gap);
-  right: var(--gap);
-  font-size: 10px;
-  padding: 2px var(--gap);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--gap);
   color: var(--light);
   background-color: var(--blue);
 }
@@ -135,4 +134,24 @@ body[data-mode=day-range] .night::before {
 }
 body[data-mode=night-range] .day::before {
   display: none;
+}
+
+#lock-container {
+  position: relative;
+}
+#lock {
+  position: absolute;
+  background: url(icons/lock-off.svg) center center no-repeat;
+  width: 32px;
+  height: 32px;
+  top: -16px;
+  background-color: var(--light);
+  z-index: 1;
+  border-radius: 50%;
+  right: 6px;
+  border: solid 2px var(--dark);
+  background-size: 20px;
+}
+#lock.locked {
+  background-image: url(icons/lock-on.svg);
 }

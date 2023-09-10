@@ -117,16 +117,26 @@ chrome.storage.onChanged.addListener(ps => {
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'icon') {
+    let path = '/data/icons/';
+    let title = chrome.runtime.getManifest().name;
+    if (request.excepted) {
+      path = '/data/icons/host-disabled/';
+      title = 'Brightness control is disabled on this hostname';
+    }
+    else if (request.enabled === false) {
+      path = '/data/icons/disabled/';
+      title = 'Brightness control is disabled globally';
+    }
     chrome.action.setIcon({
       tabId: sender.tab.id,
       path: {
-        16: '/data/icons/' + (request.excepted ? 'disabled/' : '') + '16.png',
-        32: '/data/icons/' + (request.excepted ? 'disabled/' : '') + '32.png'
+        16: path + '16.png',
+        32: path + '32.png'
       }
     });
     chrome.action.setTitle({
       tabId: sender.tab.id,
-      title: (request.excepted ? 'Brightness control is disabled on this hostname' : chrome.runtime.getManifest().name)
+      title
     });
   }
   else if (request.method === 'range') {

@@ -39,4 +39,9 @@ document.addEventListener('keydown', e => {
     e.stopPropagation();
     document.getElementById('hostname').click();
   }
+  else if (meta && e.code === 'KeyL') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('lock').click();
+  }
 });
