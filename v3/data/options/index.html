@@ -6,7 +6,7 @@
 </head>
 <body>
   <div id="mode">
-    <span><a target="_blank" data-href="faq7">Method</a></span>
+    <label for="styling-method"><a target="_blank" data-href="faq7">Brightness Control Method</a></label>
     <select id="styling-method">
       <option value="adaptive">Brightness Filter or Dark Div</option>
       <option value="filter">Use CSS Brightness Filter</option>
@@ -16,6 +16,14 @@
 
   <p>Provide a list of hostnames separated by commas that should have their screen color adjustment disabled</p>
   <textarea rows="5" id="exceptions" placeholder="e.g.: www.google.com"></textarea>
+
+  <p class="rghy">
+    <label for="disable-if-dark-mode">Try to identify if a web page uses dark theme and disable the extension if it does</label>
+    <input type="checkbox" id="disable-if-dark-mode">
+  </p>
+
+  <p>Provide a list of hostnames separated by commas that automatic dark mode detection is disabled on</p>
+  <textarea rows="5" id="dark-mode-exceptions" placeholder="e.g.: www.google.com"></textarea>
 
   <p>
     <input type="button" id="support" value="Support Development">

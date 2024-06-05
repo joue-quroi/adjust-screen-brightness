@@ -10,9 +10,6 @@ if (/Firefox/.test(navigator.userAgent)) {
 
 const save = (prefs, isTrusted = true) => {
   if (isTrusted) {
-    console.log(isTrusted, prefs);
-    // console.log(new Error().stack);
-
     chrome.storage.local.set(prefs);
   }
 };
@@ -119,7 +116,8 @@ chrome.storage.local.get({
   'day-range': 0.1,
   'night-range': 0.2,
   'enabled': true,
-  'locked': false
+  'locked': false,
+  'disable-if-dark-mode': true
 }, prefs => {
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];
@@ -135,6 +133,10 @@ chrome.storage.local.get({
 
   document.getElementById('switch').textContent = prefs.enabled ? 'Disable Everywhere' : 'Enable Everywhere';
 
+  if (prefs['disable-if-dark-mode'] === false) {
+    document.getElementById('dark-mode-list').classList.add('hidden');
+  }
+
   update();
 
   chrome.tabs.query({
@@ -145,6 +147,33 @@ chrome.storage.local.get({
     try {
       const o = new URL(tab.url);
       hostname = o.hostname;
+
+      const dml = document.getElementById('dark-mode-list');
+      dml.onclick = e => chrome.storage.local.get({
+        'dark-mode-exceptions': []
+      }, prefs => {
+        if (e.target.textContent.includes('Exclude')) {
+          prefs['dark-mode-exceptions'].push(hostname);
+          prefs['dark-mode-exceptions'] = prefs['dark-mode-exceptions'].filter((s, i, l) => s && l.indexOf(s) === i);
+        }
+        else {
+          prefs['dark-mode-exceptions'] = prefs['dark-mode-exceptions'].filter(s => s !== hostname);
+        }
+
+        chrome.storage.local.set({
+          'dark-mode-exceptions': prefs['dark-mode-exceptions']
+        }, darkmode);
+      });
+      const darkmode = () => chrome.storage.local.get({
+        'dark-mode-exceptions': []
+      }, prefs => {
+        if (prefs['dark-mode-exceptions'].includes(hostname)) {
+          dml.textContent = 'Include in Auto Dark Mode Detection';
+        }
+        else {
+          dml.textContent = 'Exclude from Auto Dark Mode Detection';
+        }
+      });
 
       if (o.protocol === 'http:' || o.protocol === 'https:') {
         chrome.storage.local.get({
@@ -158,6 +187,9 @@ chrome.storage.local.get({
           else {
             document.getElementById('enable').disabled = false;
           }
+          // dark mode
+          darkmode();
+
           // hostnames
           if (prefs.hostnames[hostname]) {
             document.getElementById('hostname').checked = true;
@@ -169,6 +201,7 @@ chrome.storage.local.get({
       }
       else {
         document.getElementById('mode').classList.add('disabled');
+        document.getElementById('dark-mode-list').disabled = true;
       }
       // do we have injection
       chrome.tabs.sendMessage(tab.id, {

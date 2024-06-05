@@ -8,7 +8,15 @@
 
 <body>
   <div id="toolbar">
-    <input type="button" value="Keyboard Shortcuts" id="shortcuts">
+    <div>
+      <input type="button" value="Keyboard Shortcuts" id="shortcuts">
+    </div>
+    <button id="dark-mode-list" title="
+'Exclude from Auto Dark Mode Detection' or 'Include in Auto Dark Mode Detection'
+
+Ctrl + M or Command + M
+
+This extension automatically disables itself when detecting dark mode on a page. You can add or remove this hostname from the exception list. Alternatively, you can disable this feature from the options page.">Exclude from Auto Dark Mode Detection</button>
     <button id="switch" title="Ctrl + T or Command + T">Disable Everywhere</button>
     <button disabled id="disable" title="Ctrl + D or Command + D"><u>D</u>isable Here</button>
     <button disabled id="enable" title="Ctrl + E or Command + E"><u>E</u>nable Here</button>

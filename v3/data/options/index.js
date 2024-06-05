@@ -4,16 +4,24 @@ const toast = document.getElementById('toast');
 
 const init = () => chrome.storage.local.get({
   'exceptions': [],
-  'styling-method': 'adaptive'
+  'styling-method': 'adaptive',
+  'disable-if-dark-mode': true,
+  'dark-mode-exceptions': []
 }, prefs => {
   document.getElementById('exceptions').value = prefs.exceptions.join(', ');
   document.getElementById('styling-method').value = prefs['styling-method'];
+  document.getElementById('disable-if-dark-mode').checked = prefs['disable-if-dark-mode'];
+  document.getElementById('dark-mode-exceptions').value = prefs['dark-mode-exceptions'].join(', ');
 });
 document.addEventListener('DOMContentLoaded', init);
 
 document.getElementById('save').addEventListener('click', () => chrome.storage.local.set({
   'styling-method': document.getElementById('styling-method').value,
   'exceptions': document.getElementById('exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
+    return s && l.indexOf(s) === i;
+  }),
+  'disable-if-dark-mode': document.getElementById('disable-if-dark-mode').checked,
+  'dark-mode-exceptions': document.getElementById('dark-mode-exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
     return s && l.indexOf(s) === i;
   })
 }, () => {

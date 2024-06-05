@@ -24,6 +24,11 @@ document.addEventListener('keydown', e => {
     e.stopPropagation();
     document.getElementById('disable').click();
   }
+  else if (meta && e.code === 'KeyM') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dark-mode-list').click();
+  }
   else if (meta && e.code === 'KeyT') {
     e.preventDefault();
     e.stopPropagation();

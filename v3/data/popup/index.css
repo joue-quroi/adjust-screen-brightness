@@ -6,7 +6,7 @@
   --border: solid 1px rgba(0, 0, 0, 0.25);
 }
 body {
-  width: 500px;
+  width: 600px;
   color: #3c4043;
   font-size: 13px;
   margin: 0;
@@ -34,12 +34,14 @@ input[type=button] {
   cursor: pointer;
   white-space: nowrap;
 }
-.disabled,
-button:disabled,
-input[type=button]:disabled {
+.disabled {
   opacity: 0.5;
   cursor: default;
   pointer-events: none;
+}
+button:disabled,
+input[type=button]:disabled {
+  display: none;
 }
 input[type=range] {
   width: 100%;
@@ -53,8 +55,11 @@ input[type=time] {
   padding: 10px;
   background-color: #333;
   display: grid;
-  grid-template-columns: 1fr min-content min-content min-content;
-  grid-gap: 10px;
+  display: flex;
+  gap: 10px;
+}
+#toolbar > div {
+  flex: 1;
 }
 #shortcuts {
   justify-self: start;
@@ -101,6 +106,7 @@ input[type=time] {
   grid-row: 1/3;
   background-size: 42px;
   background-repeat: no-repeat;
+  background-position: center;
 }
 .tbl .time {
   display: grid;
@@ -154,4 +160,11 @@ body[data-mode=night-range] .day::before {
 }
 #lock.locked {
   background-image: url(icons/lock-on.svg);
+}
+
+#dark-mode-list {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

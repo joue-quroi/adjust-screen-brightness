@@ -36,7 +36,7 @@ const range = async () => {
 async function update(reason) {
   const o = await range();
   if (update.log) {
-    console.log('update', reason, o);
+    console.info('update', reason, o);
   }
   chrome.storage.local.set({
     level: o.level,
@@ -121,11 +121,15 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     let title = chrome.runtime.getManifest().name;
     if (request.excepted) {
       path = '/data/icons/host-disabled/';
-      title = 'Brightness control is disabled on this hostname';
+      title = 'Brightness control is disabled (hostname is in the exception list)';
     }
     else if (request.enabled === false) {
       path = '/data/icons/disabled/';
       title = 'Brightness control is disabled globally';
+    }
+    else if (request.isDarkMode) {
+      path = '/data/icons/dark-mode/';
+      title = 'Brightness control is disabled (website uses dark theme)';
     }
     chrome.action.setIcon({
       tabId: sender.tab.id,
@@ -177,7 +181,7 @@ chrome.commands.onCommand.addListener(async command => {
         if (reason === 'install' || (prefs.faqs && reason === 'update')) {
           const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
           if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
+            tabs.query({active: true, lastFocusedWindow: true}, tbs => tabs.create({
               url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
               active: reason === 'install',
               ...(tbs && tbs.length && {index: tbs[0].index + 1})

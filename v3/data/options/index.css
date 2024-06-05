@@ -5,6 +5,7 @@ body {
   color: #4d5156;
   width: min(100% - 2rem, 70rem);
   margin-inline: auto;
+  margin-top: 2rem;
 }
 select,
 button,
@@ -53,4 +54,10 @@ a:visited {
   white-space: nowrap;
   grid-gap: 5px;
   align-items: center;
+}
+
+.rghy {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  grid-gap: 5px;
 }
