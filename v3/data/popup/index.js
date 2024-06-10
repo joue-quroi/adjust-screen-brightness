@@ -117,7 +117,7 @@ chrome.storage.local.get({
   'night-range': 0.2,
   'enabled': true,
   'locked': false,
-  'disable-if-dark-mode': true
+  'disable-if-dark-mode': false
 }, prefs => {
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];

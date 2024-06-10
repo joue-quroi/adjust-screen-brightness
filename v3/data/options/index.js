@@ -5,7 +5,7 @@ const toast = document.getElementById('toast');
 const init = () => chrome.storage.local.get({
   'exceptions': [],
   'styling-method': 'adaptive',
-  'disable-if-dark-mode': true,
+  'disable-if-dark-mode': false,
   'dark-mode-exceptions': []
 }, prefs => {
   document.getElementById('exceptions').value = prefs.exceptions.join(', ');

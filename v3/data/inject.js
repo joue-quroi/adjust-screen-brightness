@@ -87,7 +87,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   });
 
   const darkmode = (dispatch = false) => chrome.storage.local.get({
-    'disable-if-dark-mode': true,
+    'disable-if-dark-mode': false,
     'dark-mode-exceptions': []
   }, prefs => {
     if (prefs['disable-if-dark-mode'] === false) {
