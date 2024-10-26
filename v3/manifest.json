@@ -22,7 +22,8 @@
   ],
   "homepage_url": "https://webextension.org/listing/screen-brightness.html",
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "scripts": ["worker.js"]
   },
   "content_scripts": [{
     "matches": ["<all_urls>"],
@@ -49,5 +50,10 @@
   "options_ui": {
     "page": "/data/options/index.html",
     "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{d1b377eb-1b72-4aaa-a724-ba69bbac9a34}"
+    }
   }
 }

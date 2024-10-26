@@ -3,11 +3,6 @@
 let tab;
 let hostname;
 
-if (/Firefox/.test(navigator.userAgent)) {
-  document.getElementById('day-range').removeAttribute('list');
-  document.getElementById('night-range').removeAttribute('list');
-}
-
 const save = (prefs, isTrusted = true) => {
   if (isTrusted) {
     chrome.storage.local.set(prefs);
