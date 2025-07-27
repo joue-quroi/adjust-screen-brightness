@@ -93,11 +93,13 @@ function state(enabled) {
 chrome.alarms.onAlarm.addListener(({name}) => {
   update('alarm.' + name);
 });
-chrome.idle.onStateChanged.addListener(state => {
-  if (state === 'active') {
-    update('idle.active');
-  }
-});
+if (chrome.idle) {
+  chrome.idle.onStateChanged.addListener(state => {
+    if (state === 'active') {
+      update('idle.active');
+    }
+  });
+}
 
 /* change */
 chrome.storage.onChanged.addListener(ps => {
@@ -169,27 +171,31 @@ chrome.commands.onCommand.addListener(async command => {
 
 /* FAQs & Feedback */
 {
-  const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
+  chrome.management = chrome.management || {
+    getSelf(c) {
+      c({installType: 'normal'});
+    }
+  };
   if (navigator.webdriver !== true) {
-    const {homepage_url: page, name, version} = getManifest();
-    onInstalled.addListener(({reason, previousVersion}) => {
-      management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
+    const {homepage_url: page, name, version} = chrome.runtime.getManifest();
+    chrome.runtime.onInstalled.addListener(({reason, previousVersion}) => {
+      chrome.management.getSelf(({installType}) => installType === 'normal' && chrome.storage.local.get({
         'faqs': true,
         'last-update': 0
       }, prefs => {
         if (reason === 'install' || (prefs.faqs && reason === 'update')) {
           const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
           if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, lastFocusedWindow: true}, tbs => tabs.create({
+            chrome.tabs.query({active: true, lastFocusedWindow: true}, tbs => chrome.tabs.create({
               url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
               active: reason === 'install',
               ...(tbs && tbs.length && {index: tbs[0].index + 1})
             }));
-            storage.local.set({'last-update': Date.now()});
+            chrome.storage.local.set({'last-update': Date.now()});
           }
         }
       }));
     });
-    setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
+    chrome.runtime.setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
   }
 }

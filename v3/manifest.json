@@ -36,7 +36,9 @@
     "default_popup": "/data/popup/index.html"
   },
   "commands": {
-    "_execute_action": {},
+    "_execute_action": {
+      "description": "Execute Action"
+    },
     "increase": {
       "description": "Increment brightness level by 0.05"
     },
