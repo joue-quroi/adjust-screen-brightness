@@ -6,12 +6,14 @@ const init = () => chrome.storage.local.get({
   'exceptions': [],
   'styling-method': 'adaptive',
   'disable-if-dark-mode': false,
-  'dark-mode-exceptions': []
+  'dark-mode-exceptions': [],
+  'fullscreen': true
 }, prefs => {
   document.getElementById('exceptions').value = prefs.exceptions.join(', ');
   document.getElementById('styling-method').value = prefs['styling-method'];
   document.getElementById('disable-if-dark-mode').checked = prefs['disable-if-dark-mode'];
   document.getElementById('dark-mode-exceptions').value = prefs['dark-mode-exceptions'].join(', ');
+  document.getElementById('fullscreen').checked = prefs['fullscreen'];
 });
 document.addEventListener('DOMContentLoaded', init);
 
@@ -23,7 +25,8 @@ document.getElementById('save').addEventListener('click', () => chrome.storage.l
   'disable-if-dark-mode': document.getElementById('disable-if-dark-mode').checked,
   'dark-mode-exceptions': document.getElementById('dark-mode-exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
     return s && l.indexOf(s) === i;
-  })
+  }),
+  'fullscreen': document.getElementById('fullscreen').checked
 }, () => {
   init();
   toast.textContent = 'Options saved!';

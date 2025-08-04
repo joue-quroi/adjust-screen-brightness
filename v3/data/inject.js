@@ -18,13 +18,13 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   let excepted = false;
   let isDarkMode = false;
 
-  const css = (level, type) => {
+  const css = (level, type, fullscreen) => {
     if (level === 0 || excepted || isDarkMode) {
       return '';
     }
 
     if ((type === 'adaptive' && level > 0) || type === 'rgba') {
-      return `html::before {
+      return `html::before${fullscreen ? ', :not(:root):fullscreen::before' : ''} {
   content: " ";
   z-index: 2147483647;
   pointer-events: none;
@@ -37,7 +37,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 }`;
     }
     else {
-      return `html {
+      return `html${fullscreen ? ', :not(:root):fullscreen' : ''} {
   filter: brightness(${1 - level}) !important;
 }`;
     }
@@ -55,13 +55,18 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     'hostnames': {},
     'pref': 'day-range',
     'enabled': true,
-    'styling-method': 'adaptive' // adaptive, rgba, filter
+    'styling-method': 'adaptive', // adaptive, rgba, filter
+    'fullscreen': true
   }, prefs => {
     if (prefs.hostnames[location.hostname]) {
-      style.textContent = css(prefs.hostnames[location.hostname][prefs.pref], prefs['styling-method']);
+      style.textContent = css(
+        prefs.hostnames[location.hostname][prefs.pref],
+        prefs['styling-method'],
+        prefs.fullscreen
+      );
     }
     else {
-      style.textContent = css(prefs.level, prefs['styling-method']);
+      style.textContent = css(prefs.level, prefs['styling-method'], prefs.fullscreen);
     }
     style.disabled = prefs.enabled === false;
 
