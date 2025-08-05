@@ -14,10 +14,13 @@
       <option value="rgba">Use a Dark Div</option>
     </select>
   </div>
-
   <p class="rghy">
     <label for="fullscreen">Apply brightness control to the fullscreen elements</label>
     <input type="checkbox" id="fullscreen">
+  </p>
+  <p class="rghy">
+    <label for="backdrop">Prevent the native fullscreen backdrop effect on elements.</label>
+    <input type="checkbox" id="backdrop">
   </p>
 
   <p>Provide a list of hostnames separated by commas that should have their screen color adjustment disabled</p>
@@ -30,6 +33,13 @@
 
   <p>Provide a list of hostnames separated by commas that automatic dark mode detection is disabled on</p>
   <textarea rows="5" id="dark-mode-exceptions" placeholder="e.g.: www.google.com"></textarea>
+
+  <p>Include the following custom CSS when applying brightness control to the pages.</p>
+  <textarea rows="5" id="user-styles" placeholder="e.g.:
+
+body {
+  color: red;
+}"></textarea>
 
   <p>
     <input type="button" id="support" value="Support Development">

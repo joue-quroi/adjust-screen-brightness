@@ -7,13 +7,17 @@ const init = () => chrome.storage.local.get({
   'styling-method': 'adaptive',
   'disable-if-dark-mode': false,
   'dark-mode-exceptions': [],
-  'fullscreen': true
+  'fullscreen': true,
+  'backdrop': false,
+  'user-styles': ''
 }, prefs => {
   document.getElementById('exceptions').value = prefs.exceptions.join(', ');
   document.getElementById('styling-method').value = prefs['styling-method'];
   document.getElementById('disable-if-dark-mode').checked = prefs['disable-if-dark-mode'];
   document.getElementById('dark-mode-exceptions').value = prefs['dark-mode-exceptions'].join(', ');
   document.getElementById('fullscreen').checked = prefs['fullscreen'];
+  document.getElementById('backdrop').checked = prefs['backdrop'];
+  document.getElementById('user-styles').value = prefs['user-styles'];
 });
 document.addEventListener('DOMContentLoaded', init);
 
@@ -26,7 +30,9 @@ document.getElementById('save').addEventListener('click', () => chrome.storage.l
   'dark-mode-exceptions': document.getElementById('dark-mode-exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
     return s && l.indexOf(s) === i;
   }),
-  'fullscreen': document.getElementById('fullscreen').checked
+  'fullscreen': document.getElementById('fullscreen').checked,
+  'backdrop': document.getElementById('backdrop').checked,
+  'user-styles': document.getElementById('user-styles').value
 }, () => {
   init();
   toast.textContent = 'Options saved!';

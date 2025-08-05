@@ -18,9 +18,16 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   let excepted = false;
   let isDarkMode = false;
 
-  const css = (level, type, fullscreen) => {
+  const css = (level, type, fullscreen, ucss, backdrop) => {
     if (level === 0 || excepted || isDarkMode) {
       return '';
+    }
+
+    if (backdrop) {
+      ucss = `
+:not(:root):fullscreen::backdrop {
+  display: none;
+}`;
     }
 
     if ((type === 'adaptive' && level > 0) || type === 'rgba') {
@@ -34,12 +41,12 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, ${level});
-}`;
+}` + ucss;
     }
     else {
       return `html${fullscreen ? ', :not(:root):fullscreen' : ''} {
   filter: brightness(${1 - level}) !important;
-}`;
+}` + ucss;
     }
   };
 
@@ -56,18 +63,18 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     'pref': 'day-range',
     'enabled': true,
     'styling-method': 'adaptive', // adaptive, rgba, filter
-    'fullscreen': true
+    'fullscreen': true,
+    'user-styles': '',
+    'backdrop': true
   }, prefs => {
-    if (prefs.hostnames[location.hostname]) {
-      style.textContent = css(
-        prefs.hostnames[location.hostname][prefs.pref],
-        prefs['styling-method'],
-        prefs.fullscreen
-      );
-    }
-    else {
-      style.textContent = css(prefs.level, prefs['styling-method'], prefs.fullscreen);
-    }
+    const level = prefs.hostnames[location.hostname] ? prefs.hostnames[location.hostname][prefs.pref] : prefs.level;
+    style.textContent = css(
+      level,
+      prefs['styling-method'],
+      prefs.fullscreen,
+      prefs['user-styles'],
+      prefs['backdrop']
+    );
     style.disabled = prefs.enabled === false;
 
     chrome.runtime.sendMessage({
@@ -162,7 +169,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         darkmode(true);
       }
     }
-    if (ps.hostnames || ps.level || ps['styling-method']) {
+    if (ps.hostnames || ps.level || ps['styling-method'] || ps['backdrop'] || ps['fullscreen'] || ps['user-styles']) {
       cc();
     }
   });
