@@ -68,3 +68,7 @@ a:visited {
     display: none;
   }
 }
+
+#toast {
+  white-space: pre;
+}

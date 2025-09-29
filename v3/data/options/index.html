@@ -41,6 +41,10 @@ body {
   color: red;
 }"></textarea>
 
+  <h2>Change Global Scope</h2>
+  <p>You can restrict the extension to adjust brightness only on specific sites. Enter a comma-separated list of patterns where the extension should be active. Use <code>*://*/*</code> to include all HTTP and HTTPS pages. To allow local files, replace with <code>&lt;all_urls&gt;</code> (default scope). For more details, check the <a data-href="faq12">FAQs page</a>.</p>
+  <textarea rows="5" id="scope" placeholder="e.g.: *://google.com/*, *://*.google.com/*"></textarea>
+
   <p>
     <input type="button" id="support" value="Support Development">
     <input type="button" id="github" value="GitHub">

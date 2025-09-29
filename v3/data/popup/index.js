@@ -209,6 +209,8 @@ chrome.storage.local.get({
               tabId: tab.id
             },
             files: ['/data/inject.js']
+          }).then(() => {
+            document.body.dataset.injected = true;
           }).catch(() => {});
         }
       });

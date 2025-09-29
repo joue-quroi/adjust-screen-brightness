@@ -1,3 +1,7 @@
+if (typeof importScripts !== 'undefined') {
+  self.importScripts('activate.js');
+}
+
 const range = async () => {
   const prefs = await new Promise(resolve => chrome.storage.local.get({
     'day-time': '08:00',
@@ -68,23 +72,29 @@ function state(enabled) {
     }
   });
   chrome.action.setTitle({
-    title: enabled ? 'Extension is enabled' : 'Extension is globally disabled'
+    title: enabled ?
+      'The extension is "globally" enabled and adjusts brightness according to scoping rules' :
+      'Extension is "globally" disabled'
   });
 }
 
 {
-  const startup = () => {
-    chrome.storage.local.get({
+  const startup = async () => {
+    if (startup.done) {
+      return;
+    }
+    startup.done = true;
+
+    const prefs = await chrome.storage.local.get({
       'day-time': '08:00',
       'night-time': '19:00',
       'enabled': true
-    }, prefs => {
-      setAlartm('day-time', prefs['day-time']);
-      setAlartm('night-time', prefs['night-time']);
-      update('start.up');
-
-      state(prefs.enabled);
     });
+    setAlartm('day-time', prefs['day-time']);
+    setAlartm('night-time', prefs['night-time']);
+    update('start.up');
+
+    state(prefs.enabled);
   };
   chrome.runtime.onStartup.addListener(startup);
   chrome.runtime.onInstalled.addListener(startup);

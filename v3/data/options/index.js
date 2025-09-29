@@ -2,6 +2,13 @@
 
 const toast = document.getElementById('toast');
 
+const notify = (message, out = 750) => {
+  toast.textContent = message;
+
+  clearTimeout(notify.id);
+  notify.id = setTimeout(() => toast.textContent = '', out);
+};
+
 const init = () => chrome.storage.local.get({
   'exceptions': [],
   'styling-method': 'adaptive',
@@ -9,7 +16,8 @@ const init = () => chrome.storage.local.get({
   'dark-mode-exceptions': [],
   'fullscreen': true,
   'backdrop': false,
-  'user-styles': ''
+  'user-styles': '',
+  'scope': []
 }, prefs => {
   document.getElementById('exceptions').value = prefs.exceptions.join(', ');
   document.getElementById('styling-method').value = prefs['styling-method'];
@@ -18,32 +26,67 @@ const init = () => chrome.storage.local.get({
   document.getElementById('fullscreen').checked = prefs['fullscreen'];
   document.getElementById('backdrop').checked = prefs['backdrop'];
   document.getElementById('user-styles').value = prefs['user-styles'];
+  document.getElementById('scope').value = prefs['scope'].join(', ');
 });
 document.addEventListener('DOMContentLoaded', init);
 
-document.getElementById('save').addEventListener('click', () => chrome.storage.local.set({
-  'styling-method': document.getElementById('styling-method').value,
-  'exceptions': document.getElementById('exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
+document.getElementById('save').addEventListener('click', async () => {
+  const scope = [];
+  const patterns = document.getElementById('scope').value.split(/\s*,\s*/).filter((s, i, l) => {
     return s && l.indexOf(s) === i;
-  }),
-  'disable-if-dark-mode': document.getElementById('disable-if-dark-mode').checked,
-  'dark-mode-exceptions': document.getElementById('dark-mode-exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
-    return s && l.indexOf(s) === i;
-  }),
-  'fullscreen': document.getElementById('fullscreen').checked,
-  'backdrop': document.getElementById('backdrop').checked,
-  'user-styles': document.getElementById('user-styles').value
-}, () => {
+  });
+
+  const msgs = [];
+  for (const pattern of patterns) {
+    try {
+      await chrome.scripting.registerContentScripts([{
+        'id': 'test',
+        'js': ['/data/test.js'],
+        'world': 'MAIN',
+        'matches': [pattern]
+      }]);
+      scope.push(pattern);
+    }
+    catch (e) {
+      console.error('[Invalid Pattern for Scope]', pattern, e);
+
+      msgs.push('[Invalid Pattern for Scope] ' + pattern + ' -> ' + e.message);
+    }
+    await chrome.scripting.unregisterContentScripts({
+      ids: ['test']
+    }).catch(() => {});
+  }
+
+  await chrome.storage.local.set({
+    'styling-method': document.getElementById('styling-method').value,
+    'exceptions': document.getElementById('exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
+      return s && l.indexOf(s) === i;
+    }),
+    'disable-if-dark-mode': document.getElementById('disable-if-dark-mode').checked,
+    'dark-mode-exceptions': document.getElementById('dark-mode-exceptions').value.split(/\s*,\s*/).filter((s, i, l) => {
+      return s && l.indexOf(s) === i;
+    }),
+    'fullscreen': document.getElementById('fullscreen').checked,
+    'backdrop': document.getElementById('backdrop').checked,
+    'user-styles': document.getElementById('user-styles').value,
+    scope
+  });
+
   init();
-  toast.textContent = 'Options saved!';
-  window.setTimeout(() => toast.textContent = '', 750);
-}));
+
+  if (msgs.length) {
+    notify('Options saved!\n\n' + msgs.join('\n'), 30000);
+  }
+  else {
+    notify('Options saved!');
+  }
+});
+
 
 // reset
 document.getElementById('reset').addEventListener('click', e => {
   if (e.detail === 1) {
-    toast.textContent = 'Double-click to reset!';
-    window.setTimeout(() => toast.textContent = '', 750);
+    notify('Double-click to reset!');
   }
   else {
     localStorage.clear();

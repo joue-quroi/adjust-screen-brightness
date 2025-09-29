@@ -147,7 +147,7 @@ body[data-mode=night-range] .day::before {
 }
 #lock {
   position: absolute;
-  background: url(icons/lock-off.svg) center center no-repeat;
+  background: url("icons/lock-off.svg") center center no-repeat;
   width: 32px;
   height: 32px;
   top: -16px;
@@ -159,7 +159,7 @@ body[data-mode=night-range] .day::before {
   background-size: 20px;
 }
 #lock.locked {
-  background-image: url(icons/lock-on.svg);
+  background-image: url("icons/lock-on.svg");
 }
 
 #dark-mode-list {
@@ -167,4 +167,14 @@ body[data-mode=night-range] .day::before {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.inject {
+  margin: 0;
+  padding: 20px;
+  background-color: #fffaca;
+  text-align: center;
+}
+body:not([data-injected=true]) .inject {
+  display: none;
 }
