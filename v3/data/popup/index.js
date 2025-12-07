@@ -9,12 +9,16 @@ const save = (prefs, isTrusted = true) => {
   }
 };
 
-const change = target => {
-  const dx = target.valueAsNumber - target.ov;
-
+const change = (target, same = false) => {
   const aid = target.id === 'day-range' ? 'night-range' : 'day-range';
   const ea = document.getElementById(aid);
-  ea.valueAsNumber += dx;
+  if (same) {
+    ea.valueAsNumber = target.valueAsNumber;
+  }
+  else {
+    const dx = target.valueAsNumber - target.ov;
+    ea.valueAsNumber += dx;
+  }
   ea.dispatchEvent(new Event('input', {
     bubbles: true
   }));
@@ -26,9 +30,15 @@ document.addEventListener('input', e => {
   if (target.id.endsWith('-range')) {
     target.parentNode.querySelector('span').textContent = parseInt(target.value * 100) + '%';
 
-    if (e.isTrusted && document.body.dataset.locked === 'true') {
-      change(target);
+    if (e.isTrusted) {
+      if (document.body.dataset.locked === 'true') {
+        change(target);
+      }
+      else if (document.getElementById('simple-interface').checked) {
+        change(target, true);
+      }
     }
+
 
     target.ov = target.valueAsNumber;
   }
@@ -112,8 +122,13 @@ chrome.storage.local.get({
   'night-range': 0.2,
   'enabled': true,
   'locked': false,
-  'disable-if-dark-mode': false
+  'disable-if-dark-mode': false,
+  'type': 'schedule'
 }, prefs => {
+  if (prefs.type === 'simple') {
+    document.getElementById('simple-interface').click();
+  }
+
   document.getElementById('day-time').value = prefs['day-time'];
   document.getElementById('night-time').value = prefs['night-time'];
 
@@ -203,14 +218,18 @@ chrome.storage.local.get({
         method: 'ping'
       }, r => {
         chrome.runtime.lastError;
+
         if (r !== 'pong') {
           chrome.scripting.executeScript({
             target: {
               tabId: tab.id
             },
             files: ['/data/inject.js']
-          }).then(() => {
-            document.body.dataset.injected = true;
+          }).then(e => {
+            // Firefox internal pages
+            if (e && e[0] !== undefined) {
+              document.body.dataset.injected = true;
+            }
           }).catch(() => {});
         }
       });
@@ -273,7 +292,12 @@ document.addEventListener('wheel', e => {
   if (range) {
     range.valueAsNumber += (e.deltaY < 0 ? 1 : -1) * 0.01;
     if (e.isTrusted) {
-      change(range);
+      if (document.body.dataset.locked === 'true') {
+        change(range);
+      }
+      else if (document.getElementById('simple-interface').checked) {
+        change(range, true);
+      }
     }
     range.dispatchEvent(new CustomEvent('input', {
       bubbles: true,
@@ -292,3 +316,21 @@ document.getElementById('lock').addEventListener('click', e => {
   }, true);
   document.body.dataset.locked = locked;
 });
+
+// simple and schedule modes
+document.querySelector('.interface').onchange = e => {
+  const type = e.target.id.replace('-interface', '');
+  if (type === 'simple') {
+    const range = document.getElementById('day-range');
+    change(range, true);
+    range.dispatchEvent(new CustomEvent('input', {
+      bubbles: true,
+      detail: {
+        isTrusted: true
+      }
+    }));
+  }
+  save({
+    type
+  }, true);
+};

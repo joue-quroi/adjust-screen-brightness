@@ -18,8 +18,7 @@
     "scripting",
     "storage",
     "alarms",
-    "idle",
-    "scripting"
+    "idle"
   ],
   "host_permissions": [
     "<all_urls>"
