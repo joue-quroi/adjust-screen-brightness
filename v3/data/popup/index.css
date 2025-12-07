@@ -46,6 +46,16 @@ input[type=button]:disabled {
 input[type=range] {
   width: 100%;
   box-sizing: border-box;
+
+  &#day-range {
+    accent-color: var(--dark);
+  }
+  &#night-range {
+    accent-color: var(--light);
+  }
+  &:focus {
+    accent-color: var(--blue) !important;
+  }
 }
 input[type=time] {
   padding: 0 var(--gap);

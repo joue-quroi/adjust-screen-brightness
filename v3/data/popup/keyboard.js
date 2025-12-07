@@ -49,4 +49,24 @@ document.addEventListener('keydown', e => {
     e.stopPropagation();
     document.getElementById('lock').click();
   }
+  else if (meta && e.code === 'KeyI') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('simple-interface').click();
+  }
+  else if (meta && e.code === 'KeyU') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('schedule-interface').click();
+  }
+  else if (meta && e.code === 'KeyY') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('day-range').focus();
+  }
+  else if (meta && e.code === 'KeyN') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('night-range').focus();
+  }
 });

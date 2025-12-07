@@ -14,9 +14,9 @@
     </div>
     <div class="interface">
       <input type="radio" id="simple-interface" name="interface" value="simple">
-      <label for="simple-interface">Simple</label>
+      <label for="simple-interface" title="Ctrl + I or Command + I">S<u>i</u>mple</label>
       <input type="radio" id="schedule-interface" name="interface" value="schedule" checked>
-      <label for="schedule-interface">Schedule</label>
+      <label for="schedule-interface" title="Ctrl + U or Command + U">Sched<u>u</u>le</label>
     </div>
     <button id="dark-mode-list" title="
 'Exclude from Auto Dark Mode Detection' or 'Include in Auto Dark Mode Detection'
@@ -41,7 +41,10 @@ This extension automatically disables itself when detecting dark mode on a page.
   <option>1.8</option>
   <option>2.0</option>
 </datalist>
-  <div id="content" title="Press Shift key for step size of 5">
+  <div id="content" title="Press Shift key for step size of 5
+
+Ctrl + Y or Command + Y to focus day range
+Ctrl + N or Command + N to focus night range">
     <div class="tbl day">
       <span class="icon"></span>
       <div class="time">

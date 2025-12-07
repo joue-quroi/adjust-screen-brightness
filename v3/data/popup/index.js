@@ -106,7 +106,12 @@ const update = (focus = true) => chrome.runtime.sendMessage({
 }, range => {
   document.body.dataset.mode = range.pref;
   if (focus) {
-    document.getElementById(range.pref).focus();
+    if (document.getElementById('simple-interface').checked) {
+      document.getElementById('day-range').focus();
+    }
+    else {
+      document.getElementById(range.pref).focus();
+    }
   }
 });
 chrome.storage.onChanged.addListener(ps => {
@@ -329,6 +334,10 @@ document.querySelector('.interface').onchange = e => {
         isTrusted: true
       }
     }));
+    range.focus();
+  }
+  else {
+    update(true); // focus the proper range
   }
   save({
     type
