@@ -31,7 +31,11 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
 
     if ((type === 'adaptive' && level > 0) || type === 'rgba') {
-      return `html::before${fullscreen ? ', :not(:root):fullscreen::before' : ''} {
+      /* When the <video> itself is the fullscreen element, it gets promoted into the top layer. We cannot target the
+         top layer directly
+      */
+
+      let code = `html::before${fullscreen ? ', :not(:root):not(video):fullscreen::before' : ''} {
   content: " ";
   z-index: 2147483647;
   pointer-events: none;
@@ -41,7 +45,15 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, ${level});
-}` + ucss;
+}`;
+
+      if (fullscreen) {
+        code += `video:fullscreen {
+  filter: brightness(${1 - level});
+}`;
+      }
+      code += ucss;
+      return code;
     }
     else {
       return `html${fullscreen ? ', :not(:root):fullscreen' : ''} {
